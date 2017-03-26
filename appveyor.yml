@@ -15,6 +15,6 @@ artifacts:
   name: BrokenEvent.ILStrip
   type: zip
   
-- path: BrokenEvent.ILStrip.CLI..zip
+- path: BrokenEvent.ILStrip.CLI.zip
   name: BrokenEvent.ILStrip.CLI
   type: zip
