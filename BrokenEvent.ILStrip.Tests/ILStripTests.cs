@@ -168,10 +168,8 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass2", false);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.Form1", false);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass", true);
-      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass2", true);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.CustomAttribute", false);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.IInterface", false);
-      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithGeneric", false);
       AssemblyAsserts.AssertResource(def, "ILStripTest.Form1.resources");
       AssemblyAsserts.AssertReference(def, "mscorlib");
       AssemblyAsserts.AssertReference(def, "System.Drawing");

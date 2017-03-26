@@ -18,3 +18,6 @@ artifacts:
 - path: BrokenEvent.ILStrip.CLI.zip
   name: BrokenEvent.ILStrip.CLI
   type: zip
+  
+- path TestResult.xml
+  name TestResult
