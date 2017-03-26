@@ -17,7 +17,7 @@ The main goal is to filter .NET assemblies from unused classes after merging wit
 
 ## Usage
 
-### Example
+### Code Example
 
 In the reasons of convenience, all operations are divided into separate methods, that should be called in sequence:
 
@@ -53,6 +53,24 @@ In the reasons of convenience, all operations are divided into separate methods,
 
     stripper.Save(outputPath);
     // stripper.Save(outputStream);
+
+### Commandline Tool
+
+In reasons of convenience there is a commandline tool, built from improvised means. This make the ILStrip to work as standalone or as a part of any build script.
+Usage:
+
+    Syntax: BrokenEvent.ILStrip.CLI.exe /i:%inputFile /o:%outputFile [options]
+
+    /?, /Help - Displays the help message
+    /classes, /c - Clean unused classes.
+    /entry - User defined entry points list to start analysis. Multiple values.
+    /exclude - Exclusions from hiding list. Multiple values.
+    /hide, /h - Hide public API with internal.
+    /input, /i - Input assembly filename to process.
+    /output, /o - Output assembly filename to save.
+    /refs, /r - Clean unused references.
+    /res, /rs - Clean unused WinForms resources.
+    /s, /silent - Suppress logging.
 
 ### Analysis/How it works
 The ILStrip will parse all the method of types and find all the types that was used. Then parse them and so on. The starting points of the scanning are called "entry points". If the assembly is executable, the main entry method is is used as entry point automatically. You may add another entry points for classes, that will be instantinated with *reflection* or somehow else. The classes, that have no internal references, but you want them to remain in assembly. Same was done with the external references.
