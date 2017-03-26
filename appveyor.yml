@@ -5,11 +5,16 @@ before_build:
 - cmd: nuget restore
 build:
   verbosity: minimal
+after_build:
+- cmd: >-
+    7z a BrokenEvent.ILStrip.zip %APPVEYOR_BUILD_FOLDER%\BrokenEvent.ILStrip\bin\Release\*.dll
+
+    7z a BrokenEvent.ILStrip.CLI.zip %APPVEYOR_BUILD_FOLDER%\BrokenEvent.ILStrip.CLI\bin\Release\*.dll %APPVEYOR_BUILD_FOLDER%\BrokenEvent.ILStrip.CLI\bin\Release\*.exe
 artifacts:
-- path: BrokenEvent.ILStrip\bin\Release\*.dll
+- path: BrokenEvent.ILStrip.zip
   name: BrokenEvent.ILStrip
   type: zip
   
-- path: BrokenEvent.ILStrip.CLI\bin\Release\*.dll BrokenEvent.ILStrip.CLI\bin\Release\*.exe
+- path: BrokenEvent.ILStrip.CLI..zip
   name: BrokenEvent.ILStrip.CLI
   type: zip
