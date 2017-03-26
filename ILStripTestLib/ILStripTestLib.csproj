@@ -43,8 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClassWithGeneric.cs" />
     <Compile Include="ClassWithNestedClass.cs" />
     <Compile Include="ClassWithNestedClass2.cs" />
+    <Compile Include="CustomAttribute.cs" />
+    <Compile Include="IInterface.cs" />
     <Compile Include="RegularClass.cs" />
     <Compile Include="EmptyClass.cs" />
     <Compile Include="EmptyClass2.cs" />

@@ -1,6 +1,6 @@
 ﻿namespace ILStripTest
 {
-  public class RegularClass
+  public class RegularClass: IInterface
   {
     public void DoPublic()
     {

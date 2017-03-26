@@ -129,9 +129,6 @@ namespace BrokenEvent.ILStrip
 
     private void WalkClass(TypeDefinition type)
     {
-      if (!type.HasMethods)
-        return;
-
       TypeDefinition current = type;
       while (true)
       {
@@ -147,42 +144,68 @@ namespace BrokenEvent.ILStrip
       }
 
       // no properties walk behavior: they're walked as get_%PropName/set_%PropName methods
-
       foreach (MethodDefinition method in type.Methods)
         WalkMethod(method);
-
-      foreach (GenericParameter parameter in type.GenericParameters)
-        AddUsedType(parameter);
 
       foreach (CustomAttribute attribute in type.CustomAttributes)
         AddUsedType(attribute.AttributeType);
 
       foreach (TypeReference iface in type.Interfaces)
-        WalkClass(iface.Resolve());
+        AddUsedType(iface.Resolve());
+
+      foreach (FieldDefinition field in type.Fields)
+      {
+        foreach (CustomAttribute attribute in field.CustomAttributes)
+          AddUsedType(attribute.AttributeType);
+
+        AddUsedType(field.FieldType);
+      }
     }
 
     private void WalkMethod(MethodDefinition method)
     {
-      if (!method.HasBody)
-        return;
+      foreach (CustomAttribute attribute in method.CustomAttributes)
+        AddUsedType(attribute.AttributeType);
+
+      foreach (GenericParameter parameter in method.GenericParameters)
+        AddUsedType(parameter.DeclaringType);
 
       foreach (ParameterDefinition parameter in method.Parameters)
         AddUsedType(parameter.ParameterType);
 
       AddUsedType(method.ReturnType);
 
+      if (!method.HasBody)
+        return;
+
       foreach (Instruction instruction in method.Body.Instructions)
       {
         MethodReference methodRef = instruction.Operand as MethodReference;
-        if (methodRef == null)
-          continue;
+        if (methodRef != null)
+        {
+          AddUsedType(methodRef.DeclaringType);
+          AddUsedType(methodRef.ReturnType);
 
-        AddUsedType(methodRef.DeclaringType);
-        AddUsedType(methodRef.ReturnType);
-        foreach (GenericParameter parameter in methodRef.GenericParameters)
-          AddUsedType(parameter.DeclaringType);
-        foreach (ParameterDefinition parameter in methodRef.Parameters)
-          AddUsedType(parameter.ParameterType);
+          GenericInstanceMethod genericMethod = methodRef as GenericInstanceMethod;
+          if (genericMethod != null)
+            foreach (TypeReference parameter in genericMethod.GenericArguments)
+              AddUsedType(parameter);
+
+          foreach (ParameterDefinition parameter in methodRef.Parameters)
+            AddUsedType(parameter.ParameterType);
+          continue;
+        }
+
+        TypeReference typeRef = instruction.Operand as TypeReference;
+        if (typeRef != null)
+        {
+          AddUsedType(typeRef.DeclaringType);
+          continue;
+        }
+
+        FieldReference fieldRef = instruction.Operand as FieldReference;
+        if (fieldRef != null)
+          AddUsedType(fieldRef.FieldType);
       }
     }
 
@@ -190,10 +213,18 @@ namespace BrokenEvent.ILStrip
     {
       if (typeRef == null)
         return;
-      
+
+      GenericInstanceType genericType = typeRef as GenericInstanceType;
+      if (genericType != null)
+        foreach (TypeReference reference in genericType.GenericArguments)
+          AddUsedType(reference);
+
       TypeDefinition typeDef = typeRef.Resolve();
       if (typeDef == null)
         return;
+
+      foreach (GenericParameter parameter in typeDef.GenericParameters)
+        AddUsedType(parameter);
 
       if (typeDef.Module != definition.MainModule)
       {
@@ -204,6 +235,9 @@ namespace BrokenEvent.ILStrip
         }
         return;
       }
+
+      foreach (CustomAttribute attribute in typeDef.CustomAttributes)
+        AddUsedType(attribute.AttributeType);
 
       if (usedTypes.Contains(typeDef))
         return;
@@ -240,6 +274,9 @@ namespace BrokenEvent.ILStrip
       {
         if (type.Name == "<Module>")
           continue; // hack
+
+        if (type.Name == "<PrivateImplementationDetails>")
+          continue; // double hash
 
         bool isNestedUsed = false;
         foreach (TypeDefinition nestedType in type.NestedTypes)
@@ -338,7 +375,7 @@ namespace BrokenEvent.ILStrip
             (type.Attributes & TypeAttributes.NestedPublic) == 0 &&
             !makeInternalExclusions.Contains(type.FullName))
         {
-          type.Attributes &= ~TypeAttributes.Public;
+          type.Attributes &= ~(TypeAttributes.Public | TypeAttributes.NestedPublic);
           Log("Adjusted access modifier: " + type.FullName);
         }
       }
