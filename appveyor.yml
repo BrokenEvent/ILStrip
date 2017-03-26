@@ -8,6 +8,8 @@ build:
 artifacts:
 - path: BrokenEvent.ILStrip\bin\Release\*.dll
   name: BrokenEvent.ILStrip
+  type: zip
   
 - path: BrokenEvent.ILStrip.CLI\bin\Release\*.dll BrokenEvent.ILStrip.CLI\bin\Release\*.exe
   name: BrokenEvent.ILStrip.CLI
+  type: zip
