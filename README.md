@@ -1,7 +1,7 @@
-[![Build Status](https://ci.appveyor.com/api/projects/status/d98tigimdj908ww5?svg=true)](https://ci.appveyor.com/project/BrokenEvent/ilstrip)
+[![Build Status](https://img.shields.io/appveyor/ci/BrokenEvent/ILStrip/master.svg?style=flat-square)](https://ci.appveyor.com/project/BrokenEvent/ilstrip)
 [![Tests Status](http://teststatusbadge.azurewebsites.net/api/status/BrokenEvent/ILStrip)](https://ci.appveyor.com/project/BrokenEvent/ilstrip)
-[![GitHub license](https://img.shields.io/badge/license-MIT-green.svg)](https://raw.githubusercontent.com/BrokenEvent/ILStrip/master/LICENSE)
-[![Github Releases](https://img.shields.io/github/downloads/BrokenEvent/ILStrip/total.svg)](https://github.com/BrokenEvent/ILStrip/releases)
+[![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://raw.githubusercontent.com/BrokenEvent/ILStrip/master/LICENSE)
+[![Github Releases](https://img.shields.io/github/downloads/BrokenEvent/ILStrip/total.svg?style=flat-square)](https://github.com/BrokenEvent/ILStrip/releases)
 
 # BrokenEvent.ILStrip
 

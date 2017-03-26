@@ -1,0 +1,13 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+before_build:
+- cmd: nuget restore
+build:
+  verbosity: minimal
+artifacts:
+- path: BrokenEvent.ILStrip\bin\Release\*.dll
+  name: BrokenEvent.ILStrip
+  
+- path: BrokenEvent.ILStrip.CLI\bin\Release\*.dll BrokenEvent.ILStrip.CLI\bin\Release\*.exe
+  name: BrokenEvent.ILStrip.CLI
