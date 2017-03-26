@@ -1,3 +1,8 @@
+[![Build Status](https://ci.appveyor.com/api/projects/status/d98tigimdj908ww5?svg=true)](https://ci.appveyor.com/project/BrokenEvent/ilstrip)
+[![Tests Status](http://teststatusbadge.azurewebsites.net/api/status/BrokenEvent/ILStrip)](https://ci.appveyor.com/project/BrokenEvent/ilstrip)
+[![GitHub license](https://img.shields.io/badge/license-MIT-green.svg)](https://raw.githubusercontent.com/BrokenEvent/ILStrip/master/LICENSE)
+[![Github Releases](https://img.shields.io/github/downloads/BrokenEvent/ILStrip/total.svg)](https://github.com/BrokenEvent/ILStrip/releases)
+
 # BrokenEvent.ILStrip
 
 C# Assembly unused classes/references/resources cleaner.
