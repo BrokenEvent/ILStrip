@@ -89,3 +89,8 @@ Uses [Mono.Cecil](https://github.com/jbevain/cecil).
 ### NuGet
 
 There is no nuget package for now, but we'll make it if the community require.
+
+## Download
+[BrokenEvent.ILStrip](https://ci.appveyor.com/api/projects/BrokenEvent/ilstrip/artifacts/BrokenEvent.ILStrip.zip)
+
+[BrokenEvent.ILStrip.CLI](https://ci.appveyor.com/api/projects/BrokenEvent/ilstrip/artifacts/BrokenEvent.ILStrip.CLI.zip)
