@@ -344,7 +344,7 @@ namespace BrokenEvent.ILStrip
       }
     }
 
-    private void AssertAction(bool result, string message)
+    private static void AssertAction(bool result, string message)
     {
       if (!result)
         throw new Exception(message);
