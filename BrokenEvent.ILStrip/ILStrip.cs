@@ -199,13 +199,18 @@ namespace BrokenEvent.ILStrip
         TypeReference typeRef = instruction.Operand as TypeReference;
         if (typeRef != null)
         {
+          foreach (GenericParameter genericParameter in typeRef.GenericParameters)
+            AddUsedType(genericParameter);
           AddUsedType(typeRef.DeclaringType);
           continue;
         }
 
         FieldReference fieldRef = instruction.Operand as FieldReference;
         if (fieldRef != null)
+        {
           AddUsedType(fieldRef.FieldType);
+          AddUsedType(fieldRef.DeclaringType);
+        }
       }
     }
 
@@ -466,6 +471,56 @@ namespace BrokenEvent.ILStrip
     public void Save(Stream stream)
     {
       definition.Write(stream);
+    }
+
+    /// <summary>
+    /// Get string list of all the type names in currently loaded assembly
+    /// </summary>
+    /// <param name="separator">Separator string between types</param>
+    /// <returns>List of all the typenames</returns>
+    public string GetAllTypesList(string separator = "\r\n")
+    {
+      return GetAllTypesList(definition, separator);
+    }
+
+    /// <summary>
+    /// Get string list of names all used types in currently loaded assembly
+    /// </summary>
+    /// <param name="separator">Separator string between types</param>
+    /// <returns>List of all uses typenames</returns>
+    public string GetUsedTypesList(string separator = "\r\n")
+    {
+      return BuildTypesList(unusedTypes, separator);
+    }
+
+    /// <summary>
+    /// Get string list of all types in assembly
+    /// </summary>
+    /// <param name="definition">Assembly to list types</param>
+    /// <param name="separator">Separator string between types</param>
+    /// <returns>List of all the typenames</returns>
+    public static string GetAllTypesList(AssemblyDefinition definition, string separator = "\r\n")
+    {
+      List<TypeDefinition> types = new List<TypeDefinition>();
+      foreach (TypeDefinition type in definition.MainModule.Types)
+      {
+        types.Add(type);
+        foreach (TypeDefinition nestedType in type.NestedTypes)
+          types.Add(nestedType);
+      }
+
+      return BuildTypesList(types, separator);
+    }
+
+    private static string BuildTypesList(IEnumerable<TypeDefinition> list, string separator = "\r\n")
+    {
+      List<string> typeNames = new List<string>();
+      foreach (TypeDefinition type in list)
+        typeNames.Add(type.FullName);
+
+      typeNames.Sort();
+
+      return string.Join(separator, typeNames);
     }
   }
 }
