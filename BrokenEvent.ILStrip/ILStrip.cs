@@ -15,7 +15,6 @@ namespace BrokenEvent.ILStrip
 
     private List<TypeDefinition> usedTypes = new List<TypeDefinition>();
     private List<ModuleDefinition> references = new List<ModuleDefinition>();
-    private int scanningIndex = 0;
     private List<TypeDefinition> unusedTypes = new List<TypeDefinition>();
     private List<string> makeInternalExclusions = new List<string>();
 
@@ -122,9 +121,8 @@ namespace BrokenEvent.ILStrip
       foreach (TypeDefinition type in entryPointTypes)
         WalkClass(type);
 
-      TypeDefinition def;
-      while ((def = PeekUsedType()) != null)
-        WalkClass(def);
+      for (int i = 0; i < usedTypes.Count; i++)
+        WalkClass(usedTypes[i]);
     }
 
     private void WalkClass(TypeDefinition type)
@@ -249,14 +247,6 @@ namespace BrokenEvent.ILStrip
 
       Log("Type used: " + typeDef);
       usedTypes.Add(typeDef);
-    }
-
-    private TypeDefinition PeekUsedType()
-    {
-      if (scanningIndex >= usedTypes.Count - 1)
-        return null;
-
-      return usedTypes[++scanningIndex];
     }
 
     /// <summary>
