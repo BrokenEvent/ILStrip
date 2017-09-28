@@ -17,6 +17,7 @@ namespace BrokenEvent.ILStrip
     private List<ModuleDefinition> references = new List<ModuleDefinition>();
     private List<TypeDefinition> unusedTypes = new List<TypeDefinition>();
     private List<string> makeInternalExclusions = new List<string>();
+    private List<string> unusedResourceExclusions = new List<string>();
 
     public ILStripLogger Logger { get; set; }
 
@@ -67,6 +68,14 @@ namespace BrokenEvent.ILStrip
     public IList<string> MakeInternalExclusions
     {
       get { return makeInternalExclusions; }
+    }
+
+    /// <summary>
+    /// List of exclusions in resources to be cleaned up with <see cref="CleanupUnusedResources"/>.
+    /// </summary>
+    public IList<string> UnusedResourceExclusions
+    {
+      get { return unusedResourceExclusions; }
     }
 
     private void ScanEntryPoints()
@@ -313,8 +322,8 @@ namespace BrokenEvent.ILStrip
     }
 
     /// <summary>
-    /// Cleans all class-related resources. Uses <see cref="UnusedTypes"/> list, so be
-    /// aware to call <see cref="ScanUnusedClasses"/> before.
+    /// Cleans all unused resources. Resource will remain in assembly if it is class-related resource (MyClassName.resource) of the used class
+    /// (be aware to run <see cref="ScanUsedClasses"/> before) or is in <see cref="UnusedResourceExclusions"/> list.
     /// </summary>
     public void CleanupUnusedResources()
     {
@@ -324,17 +333,27 @@ namespace BrokenEvent.ILStrip
       while (i < definition.MainModule.Resources.Count)
       {
         Resource resource = definition.MainModule.Resources[i];
-        bool shouldClean = false;
-        foreach (TypeDefinition type in unusedTypes)
+
+        bool shouldClean = true;
+        foreach (TypeDefinition type in usedTypes)
           if (resource.Name == type.FullName + ".resources")
           {
-            shouldClean = true;
+            shouldClean = false;
+            Log("Resource used: " + resource.Name + " (used class)");
             break;
           }
+        if (shouldClean)
+        {
+          if (unusedResourceExclusions.Contains(resource.Name))
+          {
+            shouldClean = false;
+            Log("Resource used: " + resource.Name + " (exclusion)");
+          }
+        }
 
         if (shouldClean)
         {
-          Log("Resource unused: " + definition.MainModule.Resources[i].Name);
+          Log("Resource unused: " + resource.Name);
           definition.MainModule.Resources.RemoveAt(i);
         }
         else
