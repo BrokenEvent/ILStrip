@@ -15,6 +15,7 @@ namespace BrokenEvent.ILStrip
 
     private List<TypeDefinition> usedTypes = new List<TypeDefinition>();
     private List<ModuleDefinition> references = new List<ModuleDefinition>();
+    private List<ModuleReference> unmanagedReferences = new List<ModuleReference>();
     private List<TypeDefinition> unusedTypes = new List<TypeDefinition>();
     private List<string> makeInternalExclusions = new List<string>();
     private List<string> unusedResourceExclusions = new List<string>();
@@ -173,6 +174,16 @@ namespace BrokenEvent.ILStrip
     {
       foreach (CustomAttribute attribute in method.CustomAttributes)
         AddUsedType(attribute.AttributeType);
+
+      if ((method.Attributes & MethodAttributes.PInvokeImpl) != 0)
+      {
+        ModuleReference module = method.PInvokeInfo.Module;
+        if (!unmanagedReferences.Contains(module))
+        {
+          Log("Native reference used: " + module.Name);
+          unmanagedReferences.Add(module);
+        }
+      }
 
       foreach (GenericParameter parameter in method.GenericParameters)
         AddUsedType(parameter.DeclaringType);
@@ -446,9 +457,10 @@ namespace BrokenEvent.ILStrip
       while (i < definition.MainModule.AssemblyReferences.Count)
       {
         bool shouldClean = true;
+        AssemblyNameReference assemblyRef = definition.MainModule.AssemblyReferences[i];
 
         foreach (ModuleDefinition reference in references)
-          if (reference.Assembly.FullName == definition.MainModule.AssemblyReferences[i].FullName)
+          if (reference.Assembly.FullName == assemblyRef.FullName)
           {
             shouldClean = false;
             break;
@@ -456,8 +468,30 @@ namespace BrokenEvent.ILStrip
 
         if (shouldClean)
         {
-          Log("Reference unused: " + definition.MainModule.AssemblyReferences[i].Name);
+          Log("Reference unused: " + assemblyRef.Name);
           definition.MainModule.AssemblyReferences.RemoveAt(i);
+        }
+        else
+          i++;
+      }
+
+      i = 0;
+      while (i < definition.MainModule.ModuleReferences.Count)
+      {
+        bool shouldClean = true;
+        ModuleReference moduleRef = definition.MainModule.ModuleReferences[i];
+
+        foreach (ModuleReference reference in unmanagedReferences)
+          if (reference.Name == moduleRef.Name)
+          {
+            shouldClean = false;
+            break;
+          }
+
+        if (shouldClean)
+        {
+          Log("Module reference unused: " + moduleRef.Name);
+          definition.MainModule.ModuleReferences.RemoveAt(i);
         }
         else
           i++;
