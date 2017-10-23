@@ -4,6 +4,7 @@ using System.IO;
 
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Collections.Generic;
 
 namespace BrokenEvent.ILStrip
 {
@@ -19,6 +20,7 @@ namespace BrokenEvent.ILStrip
     private List<TypeDefinition> unusedTypes = new List<TypeDefinition>();
     private List<string> makeInternalExclusions = new List<string>();
     private List<string> unusedResourceExclusions = new List<string>();
+    private List<string> removeAttributesNamespaces = new List<string>();
 
     public ILStripLogger Logger { get; set; }
 
@@ -79,6 +81,15 @@ namespace BrokenEvent.ILStrip
       get { return unusedResourceExclusions; }
     }
 
+    /// <summary>
+    /// List of namespaces of the custom attributes to be removed.
+    /// </summary>
+    /// <remarks>Removal occurs in <see cref="ScanUsedClasses"/> so the list should be filled before this call.</remarks>
+    public IList<string> RemoveAttributesNamespaces
+    {
+      get { return removeAttributesNamespaces; }
+    }
+
     private void ScanEntryPoints()
     {
       if (definition.EntryPoint != null && definition.EntryPoint.DeclaringType != null)
@@ -135,6 +146,22 @@ namespace BrokenEvent.ILStrip
         WalkClass(usedTypes[i]);
     }
 
+    private void WalkCustomAttributes(Collection<CustomAttribute> customAttributes)
+    {
+      int i = 0;
+      while (i < customAttributes.Count)
+      {
+        CustomAttribute attribute = customAttributes[i];
+        if (removeAttributesNamespaces.Contains(attribute.AttributeType.Namespace))
+          customAttributes.RemoveAt(i);
+        else
+        {
+          AddUsedType(attribute.AttributeType);
+          i++;
+        }
+      }
+    }
+
     private void WalkClass(TypeDefinition type)
     {
       TypeDefinition current = type;
@@ -155,25 +182,21 @@ namespace BrokenEvent.ILStrip
       foreach (MethodDefinition method in type.Methods)
         WalkMethod(method);
 
-      foreach (CustomAttribute attribute in type.CustomAttributes)
-        AddUsedType(attribute.AttributeType);
+      WalkCustomAttributes(type.CustomAttributes);
 
       foreach (TypeReference iface in type.Interfaces)
         AddUsedType(iface.Resolve());
 
       foreach (FieldDefinition field in type.Fields)
       {
-        foreach (CustomAttribute attribute in field.CustomAttributes)
-          AddUsedType(attribute.AttributeType);
-
+        WalkCustomAttributes(field.CustomAttributes);
         AddUsedType(field.FieldType);
       }
     }
 
     private void WalkMethod(MethodDefinition method)
     {
-      foreach (CustomAttribute attribute in method.CustomAttributes)
-        AddUsedType(attribute.AttributeType);
+      WalkCustomAttributes(method.CustomAttributes);
 
       if ((method.Attributes & MethodAttributes.PInvokeImpl) != 0)
       {
@@ -191,8 +214,7 @@ namespace BrokenEvent.ILStrip
       foreach (ParameterDefinition parameter in method.Parameters)
       {
         AddUsedType(parameter.ParameterType);
-        foreach (CustomAttribute attribute in parameter.CustomAttributes)
-          AddUsedType(attribute.AttributeType);
+        WalkCustomAttributes(parameter.CustomAttributes);
       }
 
       AddUsedType(method.ReturnType);
