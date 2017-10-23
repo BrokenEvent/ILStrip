@@ -189,7 +189,11 @@ namespace BrokenEvent.ILStrip
         AddUsedType(parameter.DeclaringType);
 
       foreach (ParameterDefinition parameter in method.Parameters)
+      {
         AddUsedType(parameter.ParameterType);
+        foreach (CustomAttribute attribute in parameter.CustomAttributes)
+          AddUsedType(attribute.AttributeType);
+      }
 
       AddUsedType(method.ReturnType);
 
