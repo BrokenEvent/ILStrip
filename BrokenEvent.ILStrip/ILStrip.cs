@@ -222,6 +222,9 @@ namespace BrokenEvent.ILStrip
       if (!method.HasBody)
         return;
 
+      foreach (VariableDefinition variable in method.Body.Variables)
+        AddUsedType(variable.VariableType);
+
       foreach (Instruction instruction in method.Body.Instructions)
       {
         MethodReference methodRef = instruction.Operand as MethodReference;
