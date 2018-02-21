@@ -257,7 +257,7 @@ namespace BrokenEvent.ILStrip
         {
           AddUsedType(fieldRef.FieldType);
           AddUsedType(fieldRef.DeclaringType);
-        }
+        }        
       }
     }
 
@@ -319,9 +319,6 @@ namespace BrokenEvent.ILStrip
         if (type.Name == "<Module>")
           continue; // hack
 
-        if (type.Name == "<PrivateImplementationDetails>")
-          continue; // double hash
-
         bool isNestedUsed = false;
         foreach (TypeDefinition nestedType in type.NestedTypes)
           if (usedTypes.Contains(nestedType) || entryPointTypes.Contains(nestedType))
@@ -342,18 +339,6 @@ namespace BrokenEvent.ILStrip
           continue;
 
         if (usedTypes.Contains(type))
-          continue;
-
-        // greater hack
-        bool isCompilerGenerated = false;
-        foreach (CustomAttribute attribute in type.CustomAttributes)
-          if (attribute.AttributeType.FullName == "System.Runtime.CompilerServices.CompilerGeneratedAttribute")
-          {
-            isCompilerGenerated = true;
-            break;
-          }
-
-        if (isCompilerGenerated)
           continue;
 
         Log("Type unused: " + type);
