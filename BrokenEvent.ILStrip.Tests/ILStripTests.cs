@@ -112,7 +112,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.Form1");
       AssemblyAsserts.AssertResource(def, "ILStripTest.Form1.resources");
-      AssemblyAsserts.AssertNoReference(def, "mscorlib");
+      AssemblyAsserts.AssertReference(def, "mscorlib"); // can't be removed
       AssemblyAsserts.AssertNoReference(def, "System.Drawing");
       AssemblyAsserts.AssertNoReference(def, "System.Windows.Forms");
     }
