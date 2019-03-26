@@ -1,6 +1,4 @@
-﻿
-
-using System.IO;
+﻿using System.IO;
 
 using Mono.Cecil;
 
@@ -68,6 +66,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass2/NestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithGeneric");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.IInterface");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.UnusedPrivateClass");
       AssemblyAsserts.AssertResource(def, "ILStripTest.Form1.resources");
       AssemblyAsserts.AssertReference(def, "mscorlib");
       AssemblyAsserts.AssertReference(def, "System.Drawing");
