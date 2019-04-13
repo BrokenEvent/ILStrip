@@ -19,6 +19,8 @@ C# Assembly unused classes/references/resources cleaner.
 
 The main goal is to filter .NET assemblies from unused classes after merging with [ILRepack](https://github.com/ststeiger/ILRepack). It will not optimize your code or somehow change its behavior, but will erase all that is not used in current assembly.
 
+*ILStrip* works only on class level. If class is used somehow, all its members will remain even if they are not used.
+
 ## Usage
 
 ### Code Example
@@ -66,7 +68,7 @@ stripper.Save(outputPath);
 
 ### Commandline Tool
 
-In reasons of convenience there is a commandline tool, built from improvised means. This make the ILStrip to work as standalone or as a part of any build script.
+In reasons of convenience there is a commandline tool, built from improvised means. This makes the ILStrip to work as standalone or as a part of any build script.
 Usage:
 
     Syntax: BrokenEvent.ILStrip.CLI.exe /i:%inputFile /o:%outputFile [options]
@@ -83,14 +85,16 @@ Usage:
     /s, /silent - Suppress logging.
 
 ### Analysis/How it works
-The ILStrip will parse all the methods of classes and find all the types that was used. Then parse them and so on. The starting points of the scanning are called "entry points". If the assembly is executable, the main entry method is is used as entry point automatically. You may add another entry points for classes, that will be instantinated with *reflection* or somehow else. The classes, that have no internal references, but you want them to remain in assembly. Same was done with the external references.
+The *ILStrip* will parse all the methods of classes and find all the types that was used. Then parse them and so on. The starting points of the scanning are called *entry points*. If the assembly is executable, the main entry method is is used as entry point automatically.
 
-After building this list (`stripper.ScanUsedClasses()`) the anything that isn't listed as used is trash. `ScanUnusedClasses()` builds the complete list of it.
+You may add another *entry points* for classes, that will be instantinated with *reflection* or somehow else. It is used for classes, that have no internal references, but you want them to remain in assembly.
+
+After building this list (`stripper.ScanUsedClasses()`) anything that isn't listed as used is trash. `ScanUnusedClasses()` builds the complete list of it.
 
 ## Credits
 Uses [Mono.Cecil](https://github.com/jbevain/cecil).
 
-(C) 2017, Broken Event. [brokenevent.com](http://brokenevent.com)
+© 2017-2019 Broken Event. [brokenevent.com](https://brokenevent.com)
 
 ### NuGet
 
