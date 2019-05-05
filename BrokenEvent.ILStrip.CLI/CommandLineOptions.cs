@@ -5,7 +5,7 @@ using Plossum.CommandLine;
 
 namespace BrokenEvent.ILStrip.CLI
 {
-  [CommandLineManager(ApplicationName = "BrokenEvent.ILStrip.CLI", Copyright = "(C)2017, Broken Event", EnabledOptionStyles = OptionStyles.Windows)]
+  [CommandLineManager(ApplicationName = "BrokenEvent.ILStrip.CLI", Copyright = "(C)2017-2019, Broken Event", EnabledOptionStyles = OptionStyles.Windows)]
   internal class CommandLineOptions
   {
     private string inputFilename;

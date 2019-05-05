@@ -1,4 +1,6 @@
-﻿using Mono.Cecil;
+﻿using System.IO;
+
+using Mono.Cecil;
 
 using NUnit.Framework;
 
@@ -72,6 +74,16 @@ namespace BrokenEvent.Shared.ILStripTests
       foreach (AssemblyNameReference @ref in def.MainModule.AssemblyReferences)
         if (@ref.Name == name)
           Assert.Fail("Reference " + name + " found");
+    }
+
+    public static AssemblyDefinition SaveAssembly(ILStrip.ILStrip strip)
+    {
+      using (MemoryStream ms = new MemoryStream())
+      {
+        strip.Save(ms);
+        ms.Position = 0;
+        return AssemblyDefinition.ReadAssembly(ms);
+      }
     }
   }
 }

@@ -61,7 +61,7 @@ namespace BrokenEvent.ILStrip.CLI
         foreach (string s in options.HideExclusions)
           ilStrip.MakeInternalExclusions.Add(s);
 
-        ilStrip.MakeNotPublic();
+        ilStrip.MakeInternal();
       }
 
       if (!options.Silent)

@@ -9,16 +9,6 @@ namespace BrokenEvent.Shared.ILStripTests
   [TestFixture]
   class ILStripTests
   {
-    private static AssemblyDefinition SaveAssembly(ILStrip.ILStrip strip)
-    {
-      using (MemoryStream ms = new MemoryStream())
-      {
-        strip.Save(ms);
-        ms.Position = 0;
-        return AssemblyDefinition.ReadAssembly(ms);
-      }
-    }
-
     [Test]
     public void NoChangeTest()
     {
@@ -27,7 +17,7 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.ScanUsedClasses();
       strip.ScanUnusedClasses();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.RegularClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass2");
@@ -58,7 +48,7 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.RegularClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
@@ -90,7 +80,7 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.ScanUnusedClasses();
       strip.CleanupUnusedResources();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.RegularClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass2");
@@ -117,7 +107,7 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.CleanupUnusedClasses();
       strip.CleanupUnusedReferences();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.RegularClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
@@ -144,7 +134,7 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.CleanupUnusedResources();
       strip.CleanupUnusedReferences();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.RegularClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass2");
@@ -176,7 +166,7 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.CleanupUnusedResources();
       strip.CleanupUnusedReferences();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.Form1");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ControlOfForm1");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.RegularClass");
@@ -211,9 +201,9 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.CleanupUnusedClasses();
       strip.CleanupUnusedResources();
       strip.CleanupUnusedReferences();
-      strip.MakeNotPublic();
+      strip.MakeInternal();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.RegularClass", false);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass", true);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass2", false);
@@ -239,7 +229,7 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.RegularClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
@@ -268,7 +258,7 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.RegularClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
@@ -297,7 +287,7 @@ namespace BrokenEvent.Shared.ILStripTests
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
 
-      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyDefinition def = AssemblyAsserts.SaveAssembly(strip);
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.RegularClass");
       AssemblyAsserts.AssertClass(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertClass(def, "ILStripTest.EmptyClass2");

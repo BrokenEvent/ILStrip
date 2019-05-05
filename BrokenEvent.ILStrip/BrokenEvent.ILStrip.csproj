@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ILStrip.cs" />
+    <Compile Include="ILStrip.Helpers.cs" />
     <Compile Include="ILStripLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

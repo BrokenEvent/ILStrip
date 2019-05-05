@@ -8,142 +8,53 @@ using Mono.Collections.Generic;
 
 namespace BrokenEvent.ILStrip
 {
-  public class ILStrip
+  public partial class ILStrip
   {
     private readonly AssemblyDefinition definition;
-    private List<string> entryPoints = new List<string>();
-    private List<TypeDefinition> entryPointTypes = new List<TypeDefinition>();
+    private HashSet<string> entryPoints = new HashSet<string>();
+    private HashSet<TypeDefinition> entryPointTypes = new HashSet<TypeDefinition>();
 
+    private HashSet<TypeDefinition> usedTypesCache = new HashSet<TypeDefinition>();
     private List<TypeDefinition> usedTypes = new List<TypeDefinition>();
-    private List<ModuleDefinition> references = new List<ModuleDefinition>();
-    private List<ModuleReference> unmanagedReferences = new List<ModuleReference>();
     private List<TypeDefinition> unusedTypes = new List<TypeDefinition>();
-    private List<string> makeInternalExclusions = new List<string>();
-    private List<string> unusedResourceExclusions = new List<string>();
-    private List<string> removeAttributesNamespaces = new List<string>();
 
-    public ILStripLogger Logger { get; set; }
-
-    private void Log(string msg)
-    {
-      if (Logger != null)
-        Logger.LogMessage(msg);
-    }
+    private HashSet<ModuleDefinition> usedReferences = new HashSet<ModuleDefinition>();
+    private HashSet<ModuleReference> usedUnmanagedReferences = new HashSet<ModuleReference>();
+    private HashSet<string> makeInternalExclusions = new HashSet<string>();
+    private HashSet<string> unusedResourceExclusions = new HashSet<string>();
+    private HashSet<string> removeAttributesNamespaces = new HashSet<string>();
 
     /// <summary>
-    /// Create ILStrip object from the Mono.Cecil's <see cref="AssemblyDefinition"/>
+    /// Creates ILStrip instance from the Mono.Cecil's <see cref="AssemblyDefinition"/>.
     /// </summary>
-    /// <param name="definition">Assembly definition to open</param>
+    /// <param name="definition">Assembly definition to open.</param>
     public ILStrip(AssemblyDefinition definition)
     {
       this.definition = definition;
     }
 
     /// <summary>
-    /// Create ILStrip object and load the assembly from file.
+    /// Creates ILStrip instance and load the assembly from file.
     /// </summary>
-    /// <param name="filename">File to load assembly from</param>
+    /// <param name="filename">File to load assembly from.</param>
     public ILStrip(string filename)
+      : this(AssemblyDefinition.ReadAssembly(filename))
     {
-      definition = AssemblyDefinition.ReadAssembly(filename);
     }
 
     /// <summary>
-    /// Create ILStrip object and load the assembly from stream
+    /// Creates ILStrip instance and load the assembly from stream.
     /// </summary>
-    /// <param name="stream">Stream to load assembly from</param>
+    /// <param name="stream">Stream to load assembly from.</param>
     public ILStrip(Stream stream)
+      : this(AssemblyDefinition.ReadAssembly(stream))
     {
-      definition = AssemblyDefinition.ReadAssembly(stream);
     }
 
-    /// <summary>
-    /// List of entry points to start the used classes search
-    /// </summary>
-    public IList<string> EntryPoints
+    private void Log(string msg)
     {
-      get { return entryPoints; }
-    }
-
-    /// <summary>
-    /// List of exclusions to remain public if <see cref="MakeNotPublic"/> is used
-    /// </summary>
-    public IList<string> MakeInternalExclusions
-    {
-      get { return makeInternalExclusions; }
-    }
-
-    /// <summary>
-    /// List of exclusions in resources to be cleaned up with <see cref="CleanupUnusedResources"/>.
-    /// </summary>
-    public IList<string> UnusedResourceExclusions
-    {
-      get { return unusedResourceExclusions; }
-    }
-
-    /// <summary>
-    /// List of namespaces of the custom attributes to be removed.
-    /// </summary>
-    /// <remarks>Removal occurs in <see cref="ScanUsedClasses"/> so the list should be filled before this call.</remarks>
-    public IList<string> RemoveAttributesNamespaces
-    {
-      get { return removeAttributesNamespaces; }
-    }
-
-    private void ScanEntryPoints()
-    {
-      if (definition.EntryPoint != null && definition.EntryPoint.DeclaringType != null)
-      {
-        Log("Found module entry point: " + definition.EntryPoint.DeclaringType);
-        entryPointTypes.Add(definition.EntryPoint.DeclaringType);
-      }
-
-      foreach (string entryPoint in entryPoints)
-      {
-        bool found = false;
-        foreach (TypeDefinition type in definition.MainModule.Types)
-        {
-          if (type.FullName == entryPoint)
-          {
-            entryPointTypes.Add(type);
-            found = true;
-            break;
-          }
-
-          foreach (TypeDefinition nestedType in type.NestedTypes)
-          {
-            if (nestedType.FullName == entryPoint)
-            {
-              entryPointTypes.Add(nestedType);
-              found = true;
-              break;
-            }
-          }
-
-          if (found)
-            break;
-        }
-
-        if (!found)
-          throw new ArgumentException("Unable to resolve entry point: " + entryPoint);
-      }
-    }
-
-    /// <summary>
-    /// Analyzes the classes and methods to build list of used classes.
-    /// Beginning from the entry points.
-    /// </summary>
-    public void ScanUsedClasses()
-    {
-      ScanEntryPoints();
-
-      Log("Scanning for used classes...");
-
-      foreach (TypeDefinition type in entryPointTypes)
-        WalkClass(type);
-
-      for (int i = 0; i < usedTypes.Count; i++)
-        WalkClass(usedTypes[i]);
+      if (Logger != null)
+        Logger.LogMessage(msg);
     }
 
     private void WalkCustomAttributes(Collection<CustomAttribute> customAttributes)
@@ -201,10 +112,10 @@ namespace BrokenEvent.ILStrip
       if ((method.Attributes & MethodAttributes.PInvokeImpl) != 0)
       {
         ModuleReference module = method.PInvokeInfo.Module;
-        if (!unmanagedReferences.Contains(module))
+        if (!usedUnmanagedReferences.Contains(module))
         {
           Log("Native reference used: " + module.Name);
-          unmanagedReferences.Add(module);
+          usedUnmanagedReferences.Add(module);
         }
       }
 
@@ -280,10 +191,10 @@ namespace BrokenEvent.ILStrip
 
       if (typeDef.Module != definition.MainModule)
       {
-        if (!references.Contains(typeDef.Module))
+        if (!usedReferences.Contains(typeDef.Module))
         {
           Log("Reference used: " + typeDef.Module.FullyQualifiedName);
-          references.Add(typeDef.Module);
+          usedReferences.Add(typeDef.Module);
         }
         return;
       }
@@ -291,19 +202,120 @@ namespace BrokenEvent.ILStrip
       foreach (CustomAttribute attribute in typeDef.CustomAttributes)
         AddUsedType(attribute.AttributeType);
 
-      if (usedTypes.Contains(typeDef))
+      if (usedTypesCache.Contains(typeDef))
         return;
 
       Log("Type used: " + typeDef);
       usedTypes.Add(typeDef);
+      usedTypesCache.Add(typeDef);
+    }
+
+    private static void AssertAction(bool result, string message)
+    {
+      if (!result)
+        throw new Exception(message);
+    }
+
+    private void ScanEntryPoints()
+    {
+      if (definition.EntryPoint != null && definition.EntryPoint.DeclaringType != null)
+      {
+        Log("Found module entry point: " + definition.EntryPoint.DeclaringType);
+        entryPointTypes.Add(definition.EntryPoint.DeclaringType);
+      }
+
+      foreach (string entryPoint in entryPoints)
+      {
+        bool found = false;
+        foreach (TypeDefinition type in definition.MainModule.Types)
+        {
+          if (type.FullName == entryPoint)
+          {
+            entryPointTypes.Add(type);
+            found = true;
+            break;
+          }
+
+          foreach (TypeDefinition nestedType in type.NestedTypes)
+          {
+            if (nestedType.FullName == entryPoint)
+            {
+              entryPointTypes.Add(nestedType);
+              found = true;
+              break;
+            }
+          }
+
+          if (found)
+            break;
+        }
+
+        if (!found)
+          throw new ArgumentException("Unable to resolve entry point: " + entryPoint);
+      }
     }
 
     /// <summary>
-    /// Result list of unused types after <see cref="ScanUnusedClasses"/> call
+    /// Gets or sets the logger to log ILStrip activity.
+    /// </summary>
+    public ILStripLogger Logger { get; set; }
+
+    /// <summary>
+    /// Gets the list of entry points to start the used classes search.
+    /// </summary>
+    public HashSet<string> EntryPoints
+    {
+      get { return entryPoints; }
+    }
+
+    /// <summary>
+    /// Gets the list of exclusions to remain public if <see cref="MakeInternal"/> is used.
+    /// </summary>
+    public HashSet<string> MakeInternalExclusions
+    {
+      get { return makeInternalExclusions; }
+    }
+
+    /// <summary>
+    /// Gets the list of exclusions in resources to be cleaned up with <see cref="CleanupUnusedResources"/>.
+    /// </summary>
+    public HashSet<string> UnusedResourceExclusions
+    {
+      get { return unusedResourceExclusions; }
+    }
+
+    /// <summary>
+    /// Gets the list of namespaces of the custom attributes to be removed.
+    /// </summary>
+    /// <remarks>Removal occurs in <see cref="ScanUsedClasses"/> so the list should be filled before this call.</remarks>
+    public HashSet<string> RemoveAttributesNamespaces
+    {
+      get { return removeAttributesNamespaces; }
+    }
+
+    /// <summary>
+    /// Gets the result list of unused types after <see cref="ScanUnusedClasses"/> call.
     /// </summary>
     public IList<TypeDefinition> UnusedTypes
     {
       get { return unusedTypes; }
+    }
+
+    /// <summary>
+    /// Analyzes the classes and methods to build list of used classes.
+    /// Beginning from the entry points.
+    /// </summary>
+    public void ScanUsedClasses()
+    {
+      ScanEntryPoints();
+
+      Log("Scanning for used classes...");
+
+      foreach (TypeDefinition type in entryPointTypes)
+        WalkClass(type);
+
+      for (int i = 0; i < usedTypes.Count; i++)
+        WalkClass(usedTypes[i]);
     }
 
     /// <summary>
@@ -321,7 +333,7 @@ namespace BrokenEvent.ILStrip
 
         bool isNestedUsed = false;
         foreach (TypeDefinition nestedType in type.NestedTypes)
-          if (usedTypes.Contains(nestedType) || entryPointTypes.Contains(nestedType))
+          if (usedTypesCache.Contains(nestedType) || entryPointTypes.Contains(nestedType))
           {
             isNestedUsed = true;
             break;
@@ -338,7 +350,7 @@ namespace BrokenEvent.ILStrip
         if (entryPointTypes.Contains(type))
           continue;
 
-        if (usedTypes.Contains(type))
+        if (usedTypesCache.Contains(type))
           continue;
 
         Log("Type unused: " + type);
@@ -358,7 +370,7 @@ namespace BrokenEvent.ILStrip
       while (i < definition.MainModule.Resources.Count)
       {
         Resource resource = definition.MainModule.Resources[i];
-
+        
         bool shouldClean = true;
         foreach (TypeDefinition type in usedTypes)
           if (resource.Name == type.FullName + ".resources")
@@ -387,9 +399,9 @@ namespace BrokenEvent.ILStrip
     }
 
     /// <summary>
-    /// Makes all types, except the <see cref="MakeInternalExclusions"/> list, internal
+    /// Makes all types, except the <see cref="MakeInternalExclusions"/> list, internal.
     /// </summary>
-    public void MakeNotPublic()
+    public void MakeInternal()
     {
       Log("Adjusting access modifiers...");
 
@@ -418,12 +430,6 @@ namespace BrokenEvent.ILStrip
           Log("Adjusted access modifier: " + type.FullName);
         }
       }
-    }
-
-    private static void AssertAction(bool result, string message)
-    {
-      if (!result)
-        throw new Exception(message);
     }
 
     /// <summary>
@@ -461,7 +467,7 @@ namespace BrokenEvent.ILStrip
 
     /// <summary>
     /// Remove all unused references from the assembly. Usage list is built during <see cref="ScanUsedClasses"/>,
-    /// so be aware to call it before
+    /// so be aware to call it before.
     /// </summary>
     public void CleanupUnusedReferences()
     {
@@ -473,7 +479,7 @@ namespace BrokenEvent.ILStrip
         bool shouldClean = true;
         AssemblyNameReference assemblyRef = definition.MainModule.AssemblyReferences[i];
 
-        foreach (ModuleDefinition reference in references)
+        foreach (ModuleDefinition reference in usedReferences)
           if (reference.Assembly.FullName == assemblyRef.FullName)
           {
             shouldClean = false;
@@ -495,7 +501,7 @@ namespace BrokenEvent.ILStrip
         bool shouldClean = true;
         ModuleReference moduleRef = definition.MainModule.ModuleReferences[i];
 
-        foreach (ModuleReference reference in unmanagedReferences)
+        foreach (ModuleReference reference in usedUnmanagedReferences)
           if (reference.Name == moduleRef.Name)
           {
             shouldClean = false;
@@ -513,71 +519,21 @@ namespace BrokenEvent.ILStrip
     }
 
     /// <summary>
-    /// Save the result assembly to file
+    /// Save the result assembly to file.
     /// </summary>
-    /// <param name="filename">Path of file to save to</param>
+    /// <param name="filename">Path of file to save to.</param>
     public void Save(string filename)
     {
       definition.Write(filename);
     }
 
     /// <summary>
-    /// Save the result assembly to stream
+    /// Save the result assembly to stream.
     /// </summary>
-    /// <param name="stream">Stream to save to</param>
+    /// <param name="stream">Stream to save to.</param>
     public void Save(Stream stream)
     {
       definition.Write(stream);
-    }
-
-    /// <summary>
-    /// Get string list of all the type names in currently loaded assembly
-    /// </summary>
-    /// <param name="separator">Separator string between types</param>
-    /// <returns>List of all the typenames</returns>
-    public string GetAllTypesList(string separator = "\r\n")
-    {
-      return GetAllTypesList(definition, separator);
-    }
-
-    /// <summary>
-    /// Get string list of names all used types in currently loaded assembly
-    /// </summary>
-    /// <param name="separator">Separator string between types</param>
-    /// <returns>List of all uses typenames</returns>
-    public string GetUsedTypesList(string separator = "\r\n")
-    {
-      return BuildTypesList(unusedTypes, separator);
-    }
-
-    /// <summary>
-    /// Get string list of all types in assembly
-    /// </summary>
-    /// <param name="definition">Assembly to list types</param>
-    /// <param name="separator">Separator string between types</param>
-    /// <returns>List of all the typenames</returns>
-    public static string GetAllTypesList(AssemblyDefinition definition, string separator = "\r\n")
-    {
-      List<TypeDefinition> types = new List<TypeDefinition>();
-      foreach (TypeDefinition type in definition.MainModule.Types)
-      {
-        types.Add(type);
-        foreach (TypeDefinition nestedType in type.NestedTypes)
-          types.Add(nestedType);
-      }
-
-      return BuildTypesList(types, separator);
-    }
-
-    private static string BuildTypesList(IEnumerable<TypeDefinition> list, string separator = "\r\n")
-    {
-      List<string> typeNames = new List<string>();
-      foreach (TypeDefinition type in list)
-        typeNames.Add(type.FullName);
-
-      typeNames.Sort();
-
-      return string.Join(separator, typeNames);
     }
   }
 }
