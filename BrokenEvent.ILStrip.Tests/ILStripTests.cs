@@ -36,6 +36,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass/NestedClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass2/NestedClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.Form1");
+      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ControlOfForm1");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.CustomAttribute");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithGeneric");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.IInterface");
@@ -59,6 +60,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.Form1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfForm1");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass/NestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass2");
@@ -87,9 +89,11 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass2");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.Form1");
+      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ControlOfForm1");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass2");
       AssemblyAsserts.AssertNoResource(def, "ILStripTest.Form1.resources");
+      AssemblyAsserts.AssertNoResource(def, "ILStripTest.UnusedForm.resources");
       AssemblyAsserts.AssertReference(def, "mscorlib");
       AssemblyAsserts.AssertReference(def, "System.Drawing");
       AssemblyAsserts.AssertReference(def, "System.Windows.Forms");
@@ -135,6 +139,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.CustomAttribute");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.IInterface");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.Form1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfForm1");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass2");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithGeneric");
@@ -166,6 +171,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass", true);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass2", false);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.Form1", false);
+      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ControlOfForm1", false);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass", true);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.CustomAttribute", false);
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.IInterface", false);
@@ -191,6 +197,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.Form1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfForm1");
       AssemblyAsserts.AssertClass(def, "ILStripTest.ClassWithNestedClass");
       AssemblyAsserts.AssertClass(def, "ILStripTest.ClassWithNestedClass/NestedClass");
       AssemblyAsserts.AssertClass(def, "ILStripTest.ClassWithNestedClass2");
@@ -219,6 +226,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.Form1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfForm1");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass/NestedClass");
       AssemblyAsserts.AssertClass(def, "ILStripTest.ClassWithNestedClass2");
@@ -248,6 +256,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertClass(def, "ILStripTest.EmptyClass2");
       AssemblyAsserts.AssertClass(def, "ILStripTest.CustomAttribute");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.Form1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfForm1");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass/NestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass2");

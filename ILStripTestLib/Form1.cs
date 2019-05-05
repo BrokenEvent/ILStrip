@@ -17,4 +17,6 @@ namespace ILStripTest
       InitializeComponent();
     }
   }
+
+  public class ControlOfForm1: Control { }
 }
