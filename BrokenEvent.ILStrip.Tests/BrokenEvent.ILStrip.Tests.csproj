@@ -70,6 +70,10 @@
       <Project>{5859349a-1921-48d7-ad43-120acab63bf1}</Project>
       <Name>ILStripTestLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ILStripWPFTestLib\ILStripWPFTestLib.csproj">
+      <Project>{a83cce9f-073f-492b-9c62-457e5288add5}</Project>
+      <Name>ILStripWPFTestLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

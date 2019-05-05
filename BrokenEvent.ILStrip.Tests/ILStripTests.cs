@@ -37,10 +37,13 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass2/NestedClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.Form1");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ControlOfForm1");
+      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.UnusedForm");
+      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ControlOfUnusedForm");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.CustomAttribute");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithGeneric");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.IInterface");
       AssemblyAsserts.AssertResource(def, "ILStripTest.Form1.resources");
+      AssemblyAsserts.AssertResource(def, "ILStripTest.UnusedForm.resources");
       AssemblyAsserts.AssertReference(def, "mscorlib");
       AssemblyAsserts.AssertReference(def, "System.Drawing");
       AssemblyAsserts.AssertReference(def, "System.Windows.Forms");
@@ -61,6 +64,8 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.Form1");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfForm1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.UnusedForm");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfUnusedForm");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass/NestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass2");
@@ -70,6 +75,7 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.IInterface");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.UnusedPrivateClass");
       AssemblyAsserts.AssertResource(def, "ILStripTest.Form1.resources");
+      AssemblyAsserts.AssertResource(def, "ILStripTest.UnusedForm.resources");
       AssemblyAsserts.AssertReference(def, "mscorlib");
       AssemblyAsserts.AssertReference(def, "System.Drawing");
       AssemblyAsserts.AssertReference(def, "System.Windows.Forms");
@@ -90,6 +96,8 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.EmptyClass2");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.Form1");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ControlOfForm1");
+      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.UnusedForm");
+      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ControlOfUnusedForm");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass");
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ClassWithNestedClass2");
       AssemblyAsserts.AssertNoResource(def, "ILStripTest.Form1.resources");
@@ -114,7 +122,11 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.Form1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfForm1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.UnusedForm");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfUnusedForm");
       AssemblyAsserts.AssertResource(def, "ILStripTest.Form1.resources");
+      AssemblyAsserts.AssertResource(def, "ILStripTest.UnusedForm.resources");
       AssemblyAsserts.AssertReference(def, "mscorlib"); // can't be removed
       AssemblyAsserts.AssertNoReference(def, "System.Drawing");
       AssemblyAsserts.AssertNoReference(def, "System.Windows.Forms");
@@ -140,13 +152,48 @@ namespace BrokenEvent.Shared.ILStripTests
       AssemblyAsserts.AssertClassPublic(def, "ILStripTest.IInterface");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.Form1");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfForm1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.UnusedForm");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfUnusedForm");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass2");
       AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithGeneric");
       AssemblyAsserts.AssertNoResource(def, "ILStripTest.Form1.resources");
+      AssemblyAsserts.AssertNoResource(def, "ILStripTest.UnusedForm.resources");
       AssemblyAsserts.AssertReference(def, "mscorlib");
       AssemblyAsserts.AssertNoReference(def, "System.Drawing");
       AssemblyAsserts.AssertNoReference(def, "System.Windows.Forms");
+    }
+
+    [Test]
+    public void WinFormsEntryPointsTest()
+    {
+      ILStrip.ILStrip strip = new ILStrip.ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
+      strip.EntryPoints.Add("ILStripTest.Form1");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+      strip.CleanupUnusedResources();
+      strip.CleanupUnusedReferences();
+
+      AssemblyDefinition def = SaveAssembly(strip);
+      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.Form1");
+      AssemblyAsserts.AssertClassPublic(def, "ILStripTest.ControlOfForm1");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.RegularClass");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.EmptyClass2");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.CustomAttribute");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.IInterface");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.UnusedForm");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ControlOfUnusedForm");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithNestedClass2");
+      AssemblyAsserts.AssertNoClass(def, "ILStripTest.ClassWithGeneric");
+      AssemblyAsserts.AssertResource(def, "ILStripTest.Form1.resources");
+      AssemblyAsserts.AssertNoResource(def, "ILStripTest.UnusedForm.resources");
+      AssemblyAsserts.AssertReference(def, "mscorlib");
+      AssemblyAsserts.AssertReference(def, "System.Drawing");
+      AssemblyAsserts.AssertReference(def, "System.Windows.Forms");
     }
 
     [Test]
