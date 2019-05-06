@@ -57,6 +57,7 @@
     <Compile Include="ILStripTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestHelper.cs" />
+    <Compile Include="WinFormsTests.cs" />
     <Compile Include="WPFTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +71,10 @@
     <ProjectReference Include="..\ILStripTestLib\ILStripTestLib.csproj">
       <Project>{5859349a-1921-48d7-ad43-120acab63bf1}</Project>
       <Name>ILStripTestLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ILStripWinFormsTestLib\ILStripWinFormsTestLib.csproj">
+      <Project>{ef0544db-772d-44e8-923f-c2a34159d088}</Project>
+      <Name>ILStripWinFormsTestLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\ILStripWPFTestLib\ILStripWPFTestLib.csproj">
       <Project>{a83cce9f-073f-492b-9c62-457e5288add5}</Project>

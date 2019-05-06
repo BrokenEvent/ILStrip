@@ -1,6 +1,6 @@
-﻿namespace ILStripTest
+﻿namespace ILStripWinFormsTestLib
 {
-  partial class Form1
+  partial class UsedForm
   {
     /// <summary>
     /// Required designer variable.
@@ -29,7 +29,7 @@
     private void InitializeComponent()
     {
       this.button1 = new System.Windows.Forms.Button();
-      this.controlOfForm11 = new ILStripTest.ControlOfForm1();
+      this.controlOfForm11 = new ControlOfUsedForm();
       this.SuspendLayout();
       // 
       // button1
@@ -56,7 +56,7 @@
       this.ClientSize = new System.Drawing.Size(284, 261);
       this.Controls.Add(this.controlOfForm11);
       this.Controls.Add(this.button1);
-      this.Name = "Form1";
+      this.Name = "UsedForm";
       this.Text = "Form1";
       this.ResumeLayout(false);
 
@@ -65,6 +65,6 @@
     #endregion
 
     private System.Windows.Forms.Button button1;
-    private ControlOfForm1 controlOfForm11;
+    private ControlOfUsedForm controlOfForm11;
   }
 }

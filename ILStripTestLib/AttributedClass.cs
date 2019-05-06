@@ -1,7 +1,7 @@
 ﻿namespace ILStripTest
 {
   [Custom]
-  public class EmptyClass2
+  public class AttributedClass
   {
   }
 }

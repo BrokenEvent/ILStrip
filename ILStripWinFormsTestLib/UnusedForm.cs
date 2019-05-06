@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace ILStripTest
+namespace ILStripWinFormsTestLib
 {
   public partial class UnusedForm : Form
   {

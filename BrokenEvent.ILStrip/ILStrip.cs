@@ -111,7 +111,10 @@ namespace BrokenEvent.ILStrip
         current = baseDef;
       }
 
-      // no properties walk behavior: they're walked as get_%PropName/set_%PropName methods
+      // properties code will be walked as get_%PropName/set_%PropName methods
+      foreach (PropertyDefinition property in type.Properties)
+        WalkCustomAttributes(property.CustomAttributes);
+
       foreach (MethodDefinition method in type.Methods)
         WalkMethod(method);
 

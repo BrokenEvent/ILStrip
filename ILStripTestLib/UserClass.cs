@@ -1,6 +1,6 @@
 ﻿namespace ILStripTest
 {
-  public class RegularClass: IInterface
+  public class UserClass: IInterface
   {
     public void DoPublic()
     {
@@ -9,7 +9,7 @@
 
     private void DoPrivate()
     {
-      new EmptyClass2();
+      new AttributedClass();
     }
   }
 }

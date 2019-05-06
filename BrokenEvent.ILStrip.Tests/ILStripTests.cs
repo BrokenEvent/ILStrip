@@ -4,223 +4,236 @@ using NUnit.Framework;
 
 namespace BrokenEvent.ILStrip.Tests
 {
+  /*
+   * EmptyClass - no usages
+   * AttributedClass - uses CustomAttribute
+   * ClassWithAttributedField - uses CustomAttribute
+   * ClassWithAttributedProperty - uses CustomAttribute
+   * UserClass - uses EmptyClass, AttributedClass and IInterface
+   * ClassWithGeneric - uses AttributedClass and EmptyClass
+   * ClassWithNestedClass - uses ClassWithNestedClass/NestedClass
+   * ClassWithNestedClass - no usages
+   * IInterface - no usages
+   * CustomAttribute - no usages
+   * XmlUsingClass - no usages, but uses System.Xml reference
+   */
   [TestFixture]
   class ILStripTests
   {
     [Test]
-    public void NoChangeTest()
+    public void NoChange()
     {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
 
       strip.ScanUsedClasses();
       strip.ScanUnusedClasses();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertClass("ILStripTest.RegularClass");
       asserts.AssertClass("ILStripTest.EmptyClass");
-      asserts.AssertClass("ILStripTest.EmptyClass2");
-      asserts.AssertClass("ILStripTest.Form1");
+      asserts.AssertClass("ILStripTest.AttributedClass");
+      asserts.AssertClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertClass("ILStripTest.UserClass");
+      asserts.AssertClass("ILStripTest.ClassWithGeneric`1");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass2/NestedClass");
-      asserts.AssertClass("ILStripTest.Form1");
-      asserts.AssertClass("ILStripTest.ControlOfForm1");
-      asserts.AssertClass("ILStripTest.UnusedForm");
-      asserts.AssertClass("ILStripTest.ControlOfUnusedForm");
-      asserts.AssertClass("ILStripTest.CustomAttribute");
-      asserts.AssertClass("ILStripTest.ClassWithGeneric");
       asserts.AssertClass("ILStripTest.IInterface");
-      asserts.AssertResource("ILStripTest.Form1.resources");
-      asserts.AssertResource("ILStripTest.UnusedForm.resources");
-      asserts.AssertReference("mscorlib");
-      asserts.AssertReference("System.Drawing");
-      asserts.AssertReference("System.Windows.Forms");
+      asserts.AssertClass("ILStripTest.CustomAttribute");
+      asserts.AssertClass("ILStripTest.XmlUsingClass");
     }
 
     [Test]
-    public void CleanupUnusedClassesTest()
+    public void CleanupUnusedClassesAll()
     {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
 
       strip.ScanUsedClasses();
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertNoClass("ILStripTest.RegularClass");
       asserts.AssertNoClass("ILStripTest.EmptyClass");
-      asserts.AssertNoClass("ILStripTest.EmptyClass2");
-      asserts.AssertNoClass("ILStripTest.Form1");
-      asserts.AssertNoClass("ILStripTest.ControlOfForm1");
-      asserts.AssertNoClass("ILStripTest.UnusedForm");
-      asserts.AssertNoClass("ILStripTest.ControlOfUnusedForm");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.UserClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
-      asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
-      asserts.AssertNoClass("ILStripTest.ClassWithGeneric");
       asserts.AssertNoClass("ILStripTest.IInterface");
-      asserts.AssertNoClass("ILStripTest.UnusedPrivateClass");
-      asserts.AssertResource("ILStripTest.Form1.resources");
-      asserts.AssertResource("ILStripTest.UnusedForm.resources");
-      asserts.AssertReference("mscorlib");
-      asserts.AssertReference("System.Drawing");
-      asserts.AssertReference("System.Windows.Forms");
-    }
-
-    [Test]
-    public void CleanupUnusedResourcesTest()
-    {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
-
-      strip.ScanUsedClasses();
-      strip.ScanUnusedClasses();
-      strip.CleanupUnusedResources();
-
-      AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertClass("ILStripTest.RegularClass");
-      asserts.AssertClass("ILStripTest.EmptyClass");
-      asserts.AssertClass("ILStripTest.EmptyClass2");
-      asserts.AssertClass("ILStripTest.Form1");
-      asserts.AssertClass("ILStripTest.ControlOfForm1");
-      asserts.AssertClass("ILStripTest.UnusedForm");
-      asserts.AssertClass("ILStripTest.ControlOfUnusedForm");
-      asserts.AssertClass("ILStripTest.ClassWithNestedClass");
-      asserts.AssertClass("ILStripTest.ClassWithNestedClass2");
-      asserts.AssertNoResource("ILStripTest.Form1.resources");
-      asserts.AssertNoResource("ILStripTest.UnusedForm.resources");
-      asserts.AssertReference("mscorlib");
-      asserts.AssertReference("System.Drawing");
-      asserts.AssertReference("System.Windows.Forms");
-    }
-
-    [Test]
-    public void CleanupUnusedReferencesTest()
-    {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
-
-      strip.ScanUsedClasses();
-      strip.ScanUnusedClasses();
-      strip.CleanupUnusedClasses();
-      strip.CleanupUnusedReferences();
-
-      AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertNoClass("ILStripTest.RegularClass");
-      asserts.AssertNoClass("ILStripTest.EmptyClass");
-      asserts.AssertNoClass("ILStripTest.EmptyClass2");
-      asserts.AssertNoClass("ILStripTest.Form1");
-      asserts.AssertNoClass("ILStripTest.ControlOfForm1");
-      asserts.AssertNoClass("ILStripTest.UnusedForm");
-      asserts.AssertNoClass("ILStripTest.ControlOfUnusedForm");
-      asserts.AssertResource("ILStripTest.Form1.resources");
-      asserts.AssertResource("ILStripTest.UnusedForm.resources");
-      asserts.AssertReference("mscorlib"); // can't be removed
-      asserts.AssertNoReference("System.Drawing");
-      asserts.AssertNoReference("System.Windows.Forms");
-    }
-
-    [Test]
-    public void EntryPointsTest()
-    {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
-      strip.EntryPoints.Add("ILStripTest.RegularClass");
-
-      strip.ScanUsedClasses();
-      strip.ScanUnusedClasses();
-      strip.CleanupUnusedClasses();
-      strip.CleanupUnusedResources();
-      strip.CleanupUnusedReferences();
-
-      AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertClass("ILStripTest.RegularClass");
-      asserts.AssertClass("ILStripTest.EmptyClass");
-      asserts.AssertClass("ILStripTest.EmptyClass2");
-      asserts.AssertClass("ILStripTest.CustomAttribute");
-      asserts.AssertClass("ILStripTest.IInterface");
-      asserts.AssertNoClass("ILStripTest.Form1");
-      asserts.AssertNoClass("ILStripTest.ControlOfForm1");
-      asserts.AssertNoClass("ILStripTest.UnusedForm");
-      asserts.AssertNoClass("ILStripTest.ControlOfUnusedForm");
-      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
-      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
-      asserts.AssertNoClass("ILStripTest.ClassWithGeneric");
-      asserts.AssertNoResource("ILStripTest.Form1.resources");
-      asserts.AssertNoResource("ILStripTest.UnusedForm.resources");
-      asserts.AssertReference("mscorlib");
-      asserts.AssertNoReference("System.Drawing");
-      asserts.AssertNoReference("System.Windows.Forms");
-    }
-
-    [Test]
-    public void WinFormsEntryPointsTest()
-    {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
-      strip.EntryPoints.Add("ILStripTest.Form1");
-
-      strip.ScanUsedClasses();
-      strip.ScanUnusedClasses();
-      strip.CleanupUnusedClasses();
-      strip.CleanupUnusedResources();
-      strip.CleanupUnusedReferences();
-
-      AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertClass("ILStripTest.Form1");
-      asserts.AssertClass("ILStripTest.ControlOfForm1");
-      asserts.AssertNoClass("ILStripTest.RegularClass");
-      asserts.AssertNoClass("ILStripTest.EmptyClass");
-      asserts.AssertNoClass("ILStripTest.EmptyClass2");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
-      asserts.AssertNoClass("ILStripTest.IInterface");
-      asserts.AssertNoClass("ILStripTest.UnusedForm");
-      asserts.AssertNoClass("ILStripTest.ControlOfUnusedForm");
-      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
-      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
-      asserts.AssertNoClass("ILStripTest.ClassWithGeneric");
-      asserts.AssertResource("ILStripTest.Form1.resources");
-      asserts.AssertNoResource("ILStripTest.UnusedForm.resources");
-      asserts.AssertReference("mscorlib");
-      asserts.AssertReference("System.Drawing");
-      asserts.AssertReference("System.Windows.Forms");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
     }
 
     [Test]
-    public void MakeInternalTest()
+    public void EntryPoints()
     {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
-      strip.EntryPoints.Add("ILStripTest.Form1");
-      strip.EntryPoints.Add("ILStripTest.RegularClass");
-      strip.EntryPoints.Add("ILStripTest.ClassWithNestedClass");
-      strip.MakeInternalExclusions.Add("ILStripTest.EmptyClass");
-      strip.MakeInternalExclusions.Add("ILStripTest.ClassWithNestedClass");
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.UserClass");
 
       strip.ScanUsedClasses();
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
-      strip.CleanupUnusedResources();
-      strip.CleanupUnusedReferences();
-      strip.MakeInternal();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertClass("ILStripTest.RegularClass", ClassModifier.Internal);
-      asserts.AssertClass("ILStripTest.EmptyClass", ClassModifier.Public);
-      asserts.AssertClass("ILStripTest.EmptyClass2", ClassModifier.Internal);
-      asserts.AssertClass("ILStripTest.Form1", ClassModifier.Internal);
-      asserts.AssertClass("ILStripTest.ControlOfForm1", ClassModifier.Internal);
-      asserts.AssertClass("ILStripTest.ClassWithNestedClass", ClassModifier.Public);
-      asserts.AssertClass("ILStripTest.CustomAttribute", ClassModifier.Internal);
-      asserts.AssertClass("ILStripTest.IInterface", ClassModifier.Internal);
-      asserts.AssertResource("ILStripTest.Form1.resources");
-      asserts.AssertReference("mscorlib");
-      asserts.AssertReference("System.Drawing");
-      asserts.AssertReference("System.Windows.Forms");
+      asserts.AssertClass("ILStripTest.UserClass");
+      asserts.AssertClass("ILStripTest.EmptyClass");
+      asserts.AssertClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertClass("ILStripTest.IInterface");
+      asserts.AssertClass("ILStripTest.CustomAttribute");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
     }
 
     [Test]
-    public void CleanupUnusedNestedClassesTest()
+    public void AttributeToField()
     {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.ClassWithAttributedField");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertNoClass("ILStripTest.UserClass");
+      asserts.AssertNoClass("ILStripTest.EmptyClass");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertClass("ILStripTest.CustomAttribute");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
+    }
+
+    [Test]
+    public void AttributeToProperty()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.ClassWithAttributedProperty");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertNoClass("ILStripTest.UserClass");
+      asserts.AssertNoClass("ILStripTest.EmptyClass");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertClass("ILStripTest.CustomAttribute");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
+    }
+
+    [Test]
+    public void CleanupUnusedReferencesAll()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+      strip.CleanupUnusedReferences();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertNoClass("ILStripTest.EmptyClass");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.UserClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertNoClass("ILStripTest.CustomAttribute");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
+      asserts.AssertReference("mscorlib"); // can't be removed
+      asserts.AssertNoReference("System.Xml");
+    }
+
+    [Test]
+    public void CleanupUnusedReferencesUsed()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.XmlUsingClass");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+      strip.CleanupUnusedReferences();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertNoClass("ILStripTest.EmptyClass");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.UserClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertNoClass("ILStripTest.CustomAttribute");
+      asserts.AssertClass("ILStripTest.XmlUsingClass");
+      asserts.AssertReference("mscorlib"); // can't be removed
+      asserts.AssertReference("System.Xml");
+    }
+
+    [Test]
+    public void CleanupUusedNestedClasses()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
       strip.EntryPoints.Add("ILStripTest.ClassWithNestedClass");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertNoClass("ILStripTest.UserClass");
+      asserts.AssertNoClass("ILStripTest.EmptyClass");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertNoClass("ILStripTest.CustomAttribute");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
+    }
+
+    [Test]
+    public void CleanupUnusedNestedClasses()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
       strip.EntryPoints.Add("ILStripTest.ClassWithNestedClass2");
 
       strip.ScanUsedClasses();
@@ -228,28 +241,25 @@ namespace BrokenEvent.ILStrip.Tests
       strip.CleanupUnusedClasses();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertNoClass("ILStripTest.RegularClass");
+      asserts.AssertNoClass("ILStripTest.UserClass");
       asserts.AssertNoClass("ILStripTest.EmptyClass");
-      asserts.AssertNoClass("ILStripTest.EmptyClass2");
-      asserts.AssertNoClass("ILStripTest.Form1");
-      asserts.AssertNoClass("ILStripTest.ControlOfForm1");
-      asserts.AssertClass("ILStripTest.ClassWithNestedClass");
-      asserts.AssertClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
-      asserts.AssertNoClass("ILStripTest.ClassWithGeneric");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
-      asserts.AssertResource("ILStripTest.Form1.resources");
-      asserts.AssertReference("mscorlib");
-      asserts.AssertReference("System.Drawing");
-      asserts.AssertReference("System.Windows.Forms");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
     }
 
     [Test]
-    public void CleanupUnusedClassesButUseNestedTest()
+    public void CleanupUnusedClassesButUseNested()
     {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
       strip.EntryPoints.Add("ILStripTest.ClassWithNestedClass2/NestedClass");
 
       strip.ScanUsedClasses();
@@ -257,49 +267,104 @@ namespace BrokenEvent.ILStrip.Tests
       strip.CleanupUnusedClasses();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertNoClass("ILStripTest.RegularClass");
+      asserts.AssertNoClass("ILStripTest.UserClass");
       asserts.AssertNoClass("ILStripTest.EmptyClass");
-      asserts.AssertNoClass("ILStripTest.EmptyClass2");
-      asserts.AssertNoClass("ILStripTest.Form1");
-      asserts.AssertNoClass("ILStripTest.ControlOfForm1");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass2/NestedClass");
-      asserts.AssertNoClass("ILStripTest.ClassWithGeneric");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
-      asserts.AssertResource("ILStripTest.Form1.resources");
-      asserts.AssertReference("mscorlib");
-      asserts.AssertReference("System.Drawing");
-      asserts.AssertReference("System.Windows.Forms");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
     }
 
     [Test]
-    public void CleanupUnusedClassesWithGenericsTest()
+    public void CleanupUnusedClassesWithGenerics()
     {
-      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTest.dll"));
-      strip.EntryPoints.Add("ILStripTest.ClassWithGeneric");
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.ClassWithGeneric`1");
 
       strip.ScanUsedClasses();
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertNoClass("ILStripTest.RegularClass");
+      asserts.AssertNoClass("ILStripTest.UserClass");
       asserts.AssertClass("ILStripTest.EmptyClass");
-      asserts.AssertClass("ILStripTest.EmptyClass2");
-      asserts.AssertClass("ILStripTest.CustomAttribute");
-      asserts.AssertNoClass("ILStripTest.Form1");
-      asserts.AssertNoClass("ILStripTest.ControlOfForm1");
+      asserts.AssertClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertClass("ILStripTest.ClassWithGeneric`1");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
-      asserts.AssertResource("ILStripTest.Form1.resources");
-      asserts.AssertReference("mscorlib");
-      asserts.AssertReference("System.Drawing");
-      asserts.AssertReference("System.Windows.Forms");
+      asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertClass("ILStripTest.CustomAttribute");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
+    }
+
+    [Test]
+    public void MakeInternal()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.UserClass");
+      strip.EntryPoints.Add("ILStripTest.ClassWithNestedClass");
+      strip.MakeInternalExclusions.Add("ILStripTest.EmptyClass");
+      strip.MakeInternalExclusions.Add("ILStripTest.ClassWithNestedClass");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+      strip.MakeInternal();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertClass("ILStripTest.UserClass", ClassModifier.Internal);
+      asserts.AssertClass("ILStripTest.EmptyClass", ClassModifier.Public);
+      asserts.AssertClass("ILStripTest.AttributedClass", ClassModifier.Internal);
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertClass("ILStripTest.ClassWithNestedClass", ClassModifier.Public);
+      asserts.AssertClass("ILStripTest.ClassWithNestedClass/NestedClass", ClassModifier.Public);
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertClass("ILStripTest.IInterface", ClassModifier.Internal);
+      asserts.AssertClass("ILStripTest.CustomAttribute", ClassModifier.Internal);
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
+    }
+
+    [Test]
+    public void RemoveAttributes()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.ClassWithAttributedField");
+      strip.EntryPoints.Add("ILStripTest.ClassWithAttributedProperty");
+      strip.EntryPoints.Add("ILStripTest.AttributedClass");
+      strip.RemoveAttributesNamespaces.Add("ILStripTest");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertNoClass("ILStripTest.UserClass");
+      asserts.AssertNoClass("ILStripTest.EmptyClass");
+      asserts.AssertClass("ILStripTest.AttributedClass");
+      asserts.AssertClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertNoClass("ILStripTest.CustomAttribute");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
     }
   }
 }
