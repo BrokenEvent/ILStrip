@@ -1,37 +1,72 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Resources;
 
 using Mono.Cecil;
 
 using NUnit.Framework;
 
-namespace BrokenEvent.Shared.ILStripTests
+namespace BrokenEvent.ILStrip.Tests
 {
   class AssemblyAsserts
   {
-    private static TypeDefinition FindType(AssemblyDefinition def, string className)
-    {
-      foreach (TypeDefinition type in def.MainModule.Types)
-      {
-        if (type.FullName == className)
-          return type;
+    private readonly AssemblyDefinition definition;
+    private Dictionary<string, TypeDefinition> types = new Dictionary<string, TypeDefinition>();
+    private HashSet<string> bamls = new HashSet<string>();
 
-        foreach (TypeDefinition nestedType in type.NestedTypes)
-          if (nestedType.FullName == className)
-            return nestedType;
+    public AssemblyAsserts(ILStrip strip)
+    {
+      using (MemoryStream ms = new MemoryStream())
+      {
+        strip.Save(ms);
+        ms.Position = 0;
+        definition = AssemblyDefinition.ReadAssembly(ms);
       }
 
-      return null;
+      foreach (TypeDefinition type in definition.MainModule.Types)
+      {
+        types.Add(type.FullName, type);
+
+        foreach (TypeDefinition nestedType in type.NestedTypes)
+          types.Add(nestedType.FullName, nestedType);
+      }
+
+      string targetName = $"{definition.Name.Name}.g.resources";
+      EmbeddedResource wpfRoot = null;
+      foreach (Resource resource in definition.MainModule.Resources)
+      {
+        if (resource.Name == targetName)
+          wpfRoot = resource as EmbeddedResource;
+
+        if (wpfRoot != null)
+          break;
+      }
+
+      if (wpfRoot == null)
+        return;
+
+      using (Stream stream = wpfRoot.GetResourceStream())
+      {
+        using (ResourceReader reader = new ResourceReader(stream))
+          foreach (DictionaryEntry entry in reader)
+          {
+            string name = (string)entry.Key;
+            if (name.EndsWith(".baml"))
+              bamls.Add(name);
+          }
+      }
     }
 
-    public static void AssertClass(AssemblyDefinition def, string className)
+    public void AssertClass(string className)
     {
-      Assert.IsNotNull(FindType(def, className), "Class " + className + " not found");
+      Assert.IsTrue(types.ContainsKey(className), "Class " + className + " not found");
     }
 
-    public static void AssertClassPublic(AssemblyDefinition def, string className, bool isPublic = true)
+    public void AssertClassPublic(string className, bool isPublic = true)
     {
-      TypeDefinition type = FindType(def, className);
-      Assert.IsNotNull(type, "Class " + className + " not found");
+      TypeDefinition type;
+      Assert.IsTrue(types.TryGetValue(className, out type), "Class " + className + " not found");
 
       if (isPublic)
         Assert.True((type.Attributes & (TypeAttributes.Public | TypeAttributes.NestedPublic)) != 0, className + " should be public");
@@ -39,51 +74,50 @@ namespace BrokenEvent.Shared.ILStripTests
         Assert.True((type.Attributes & (TypeAttributes.Public | TypeAttributes.NestedPublic)) == 0, className + " should not be public");
     }
 
-    public static void AssertNoClass(AssemblyDefinition def, string className)
+    public void AssertNoClass(string className)
     {
-      Assert.IsNull(FindType(def, className), "Class " + className + " found");
+      Assert.IsTrue(!types.ContainsKey(className), "Class " + className + " found");
     }
 
-    public static void AssertResource(AssemblyDefinition def, string name)
+    public void AssertResource(string name)
     {
-      foreach (Resource res in def.MainModule.Resources)
+      foreach (Resource res in definition.MainModule.Resources)
         if (res.Name == name)
           return;
 
       Assert.Fail("Resource " + name + " not found");
     }
 
-    public static void AssertNoResource(AssemblyDefinition def, string name)
+    public void AssertNoResource(string name)
     {
-      foreach (Resource res in def.MainModule.Resources)
+      foreach (Resource res in definition.MainModule.Resources)
         if (res.Name == name)
           Assert.Fail("Resource " + name + " found");
     }
 
-    public static void AssertReference(AssemblyDefinition def, string name)
+    public void AssertReference(string name)
     {
-      foreach (AssemblyNameReference @ref in def.MainModule.AssemblyReferences)
+      foreach (AssemblyNameReference @ref in definition.MainModule.AssemblyReferences)
         if (@ref.Name == name)
           return;
 
       Assert.Fail("Reference " + name + " not found");
     }
 
-    public static void AssertNoReference(AssemblyDefinition def, string name)
+    public void AssertNoReference(string name)
     {
-      foreach (AssemblyNameReference @ref in def.MainModule.AssemblyReferences)
+      foreach (AssemblyNameReference @ref in definition.MainModule.AssemblyReferences)
         if (@ref.Name == name)
           Assert.Fail("Reference " + name + " found");
     }
 
-    public static AssemblyDefinition SaveAssembly(ILStrip.ILStrip strip)
+    public void AssertBaml(string name)
     {
-      using (MemoryStream ms = new MemoryStream())
-      {
-        strip.Save(ms);
-        ms.Position = 0;
-        return AssemblyDefinition.ReadAssembly(ms);
-      }
+      Assert.True(bamls.Contains(name), "Baml " + name + " not found");
+    }
+    public void AssertNoBaml(string name)
+    {
+      Assert.True(!bamls.Contains(name), "Baml " + name + " found");
     }
   }
 }

@@ -12,7 +12,7 @@ using Mono.Collections.Generic;
 
 namespace BrokenEvent.ILStrip
 {
-  public partial class ILStrip
+  public partial class ILStrip: IDisposable
   {
     private readonly AssemblyDefinition definition;
     private HashSet<string> entryPoints = new HashSet<string>();
@@ -516,6 +516,7 @@ namespace BrokenEvent.ILStrip
             Log("Resource used: " + resource.Name + " (used class)");
             break;
           }
+
         if (shouldClean)
         {
           if (unusedResourceExclusions.Contains(resource.Name))
@@ -524,6 +525,9 @@ namespace BrokenEvent.ILStrip
             Log("Resource used: " + resource.Name + " (exclusion)");
           }
         }
+
+        if (resource == wpfRootResource)
+          shouldClean = false;
 
         if (shouldClean)
         {
@@ -672,5 +676,17 @@ namespace BrokenEvent.ILStrip
     {
       definition.Write(stream);
     }
+
+    #region IDisposable
+
+    public void Dispose()
+    {
+      foreach (KeyValuePair<string, ResourcePart> part in wpfRootParts)
+        part.Value.Dispose();
+
+      wpfRootParts.Clear();
+    }
+
+    #endregion
   }
 }

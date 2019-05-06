@@ -36,37 +36,38 @@ namespace BrokenEvent.ILStrip.CLI
       if (!options.Silent)
         Console.WriteLine("Reading: " + options.InputFilename);
 
-      ILStrip ilStrip = new ILStrip(options.InputFilename);
-
-      if (!options.Silent)
-        ilStrip.Logger = new CommandLineLogger();
-
-      foreach (string s in options.EntryPoints)
-        ilStrip.EntryPoints.Add(s);
-
-      ilStrip.ScanUsedClasses();
-      ilStrip.ScanUnusedClasses();
-
-      if (options.CleanUnusedClasses)
-        ilStrip.CleanupUnusedClasses();
-
-      if (options.CleanUnusedReferences)
-        ilStrip.CleanupUnusedReferences();
-
-      if (options.CleanUnusedResources)
-        ilStrip.CleanupUnusedResources();
-
-      if (options.HideApi)
+      using (ILStrip ilStrip = new ILStrip(options.InputFilename))
       {
-        foreach (string s in options.HideExclusions)
-          ilStrip.MakeInternalExclusions.Add(s);
+        if (!options.Silent)
+          ilStrip.Logger = new CommandLineLogger();
 
-        ilStrip.MakeInternal();
+        foreach (string s in options.EntryPoints)
+          ilStrip.EntryPoints.Add(s);
+
+        ilStrip.ScanUsedClasses();
+        ilStrip.ScanUnusedClasses();
+
+        if (options.CleanUnusedClasses)
+          ilStrip.CleanupUnusedClasses();
+
+        if (options.CleanUnusedReferences)
+          ilStrip.CleanupUnusedReferences();
+
+        if (options.CleanUnusedResources)
+          ilStrip.CleanupUnusedResources();
+
+        if (options.HideApi)
+        {
+          foreach (string s in options.HideExclusions)
+            ilStrip.MakeInternalExclusions.Add(s);
+
+          ilStrip.MakeInternal();
+        }
+
+        if (!options.Silent)
+          Console.WriteLine("Writing: " + options.OutputFilename);
+        ilStrip.Save(options.OutputFilename);
       }
-
-      if (!options.Silent)
-        Console.WriteLine("Writing: " + options.OutputFilename);
-      ilStrip.Save(options.OutputFilename);
 
 #if DEBUG
       Console.ReadKey();
