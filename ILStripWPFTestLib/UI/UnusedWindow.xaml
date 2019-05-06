@@ -1,0 +1,24 @@
+﻿<Window x:Class="ILStripWPFTestLib.UI.UnusedWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModel="clr-namespace:ILStripWPFTestLib.ViewModel"
+        mc:Ignorable="d"
+        Title="UnusedWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance Type=viewModel:UnusedViewModel}">
+  <Window.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/ILStripWPFTestLib;component/TestDictionary.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Window.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <CheckBox IsChecked="{Binding IsChecked}" Grid.Row="0" Content="Checkbox"/>
+    <TextBlock Text="{Binding IsChecked, Converter={StaticResource UnusedValueConverter}}" Grid.Row="1"/>
+  </Grid>
+</Window>

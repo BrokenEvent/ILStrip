@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrokenEvent.ILStrip.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrokenEvent.ILStrip.CLI", "BrokenEvent.ILStrip.CLI\BrokenEvent.ILStrip.CLI.csproj", "{0D6A1A1D-873C-40AF-A17F-47B32E94F008}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILStripWPFTestLib", "ILStripWPFTestLib\ILStripWPFTestLib.csproj", "{A83CCE9F-073F-492B-9C62-457E5288ADD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,8 +35,15 @@ Global
 		{0D6A1A1D-873C-40AF-A17F-47B32E94F008}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D6A1A1D-873C-40AF-A17F-47B32E94F008}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D6A1A1D-873C-40AF-A17F-47B32E94F008}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A83CCE9F-073F-492B-9C62-457E5288ADD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A83CCE9F-073F-492B-9C62-457E5288ADD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A83CCE9F-073F-492B-9C62-457E5288ADD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A83CCE9F-073F-492B-9C62-457E5288ADD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1C55102D-8692-4BA2-9734-1DACE5088B79}
 	EndGlobalSection
 EndGlobal

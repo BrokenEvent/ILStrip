@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Resources;
+
+using Confuser.Renamer.BAML;
 
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -12,17 +16,24 @@ namespace BrokenEvent.ILStrip
   {
     private readonly AssemblyDefinition definition;
     private HashSet<string> entryPoints = new HashSet<string>();
-    private HashSet<TypeDefinition> entryPointTypes = new HashSet<TypeDefinition>();
+    private HashSet<string> entryPointBamls = new HashSet<string>();
 
     private HashSet<TypeDefinition> usedTypesCache = new HashSet<TypeDefinition>();
     private List<TypeDefinition> usedTypes = new List<TypeDefinition>();
     private List<TypeDefinition> unusedTypes = new List<TypeDefinition>();
+    private List<ResourcePart> usedBamls = new List<ResourcePart>();
+
+    private Dictionary<string, TypeDefinition> typesMap = new Dictionary<string, TypeDefinition>();
+    private Dictionary<TypeDefinition, ResourcePart> bamlMap = new Dictionary<TypeDefinition, ResourcePart>();
 
     private HashSet<ModuleDefinition> usedReferences = new HashSet<ModuleDefinition>();
     private HashSet<ModuleReference> usedUnmanagedReferences = new HashSet<ModuleReference>();
     private HashSet<string> makeInternalExclusions = new HashSet<string>();
     private HashSet<string> unusedResourceExclusions = new HashSet<string>();
     private HashSet<string> removeAttributesNamespaces = new HashSet<string>();
+
+    private EmbeddedResource wpfRootResource;
+    private Dictionary<string, ResourcePart> wpfRootParts;
 
     /// <summary>
     /// Creates ILStrip instance from the Mono.Cecil's <see cref="AssemblyDefinition"/>.
@@ -172,6 +183,40 @@ namespace BrokenEvent.ILStrip
       }
     }
 
+    private void WalkBaml(ResourcePart part)
+    {
+      string pathPrefix = $"/{definition.Name.Name};component/";
+
+      foreach (BamlRecord record in part.Baml)
+      {
+        if (record.Type == BamlRecordType.TypeInfo)
+        {
+          TypeInfoRecord typeInfo = (TypeInfoRecord)record;
+
+          TypeDefinition type;
+          if (typesMap.TryGetValue(typeInfo.TypeFullName, out type))
+            AddUsedType(type);
+
+          continue;
+        }
+
+        if (record.Type == BamlRecordType.PropertyWithConverter)
+        {
+          PropertyWithConverterRecord propertyInfo = (PropertyWithConverterRecord)record;
+
+          if (propertyInfo.Value.EndsWith(".xaml", StringComparison.InvariantCultureIgnoreCase) &&
+              propertyInfo.Value.StartsWith(pathPrefix))
+          {
+            string bamlName = propertyInfo.Value.Substring(pathPrefix.Length, propertyInfo.Value.Length - pathPrefix.Length - 4).ToLower() + "baml";
+
+            ResourcePart resourcePart;
+            if (wpfRootParts != null && wpfRootParts.TryGetValue(bamlName, out resourcePart) && resourcePart.Baml != null)
+              AddUsedBaml(resourcePart);
+          }
+        }
+      }
+    }
+
     private void AddUsedType(TypeReference typeRef)
     {
       if (typeRef == null)
@@ -193,7 +238,7 @@ namespace BrokenEvent.ILStrip
       {
         if (!usedReferences.Contains(typeDef.Module))
         {
-          Log("Reference used: " + typeDef.Module.FullyQualifiedName);
+          Log($"Reference used: {typeDef.Module.FullyQualifiedName}");
           usedReferences.Add(typeDef.Module);
         }
         return;
@@ -205,9 +250,26 @@ namespace BrokenEvent.ILStrip
       if (usedTypesCache.Contains(typeDef))
         return;
 
-      Log("Type used: " + typeDef);
+      Log($"Type used: {typeDef}");
       usedTypes.Add(typeDef);
       usedTypesCache.Add(typeDef);
+      AddUsedBaml(typeDef);
+    }
+
+    private void AddUsedBaml(TypeDefinition typeDef)
+    {
+      ResourcePart resourcePart;
+      if (bamlMap.TryGetValue(typeDef, out resourcePart))
+        AddUsedBaml(resourcePart);
+    }
+
+    private void AddUsedBaml(ResourcePart resourcePart)
+    {
+      if (usedBamls.Contains(resourcePart))
+        return;
+
+      Log($"BAML used: {resourcePart.Name}");
+      usedBamls.Add(resourcePart);
     }
 
     private static void AssertAction(bool result, string message)
@@ -216,42 +278,85 @@ namespace BrokenEvent.ILStrip
         throw new Exception(message);
     }
 
+    private void BuildTypesMap()
+    {
+      Log("Building types map...");
+      foreach (TypeDefinition type in definition.MainModule.Types)
+      {
+        typesMap.Add(type.FullName, type);
+
+        foreach (TypeDefinition nestedType in type.NestedTypes)
+          typesMap.Add(nestedType.FullName, nestedType);
+      }
+    }
+
     private void ScanEntryPoints()
     {
       if (definition.EntryPoint != null && definition.EntryPoint.DeclaringType != null)
       {
-        Log("Found module entry point: " + definition.EntryPoint.DeclaringType);
-        entryPointTypes.Add(definition.EntryPoint.DeclaringType);
+        Log($"Found module entry point: {definition.EntryPoint.DeclaringType}");
+        AddUsedType(definition.EntryPoint.DeclaringType);
       }
 
       foreach (string entryPoint in entryPoints)
       {
-        bool found = false;
-        foreach (TypeDefinition type in definition.MainModule.Types)
-        {
-          if (type.FullName == entryPoint)
-          {
-            entryPointTypes.Add(type);
-            found = true;
-            break;
-          }
+        TypeDefinition type;
 
-          foreach (TypeDefinition nestedType in type.NestedTypes)
+        if (!typesMap.TryGetValue(entryPoint, out type))
+          throw new ArgumentException($"Unable to resolve class entry point: {entryPoint}");
+
+        usedTypesCache.Add(type);
+        usedTypes.Add(type);
+        AddUsedBaml(type);
+      }
+
+      foreach (string entryPoint in entryPointBamls)
+      {
+        ResourcePart resourcePart;
+        if (wpfRootParts == null || !wpfRootParts.TryGetValue(entryPoint, out resourcePart))
+          throw new ArgumentException($"Unable to reslove BAML entry point: {entryPoint}");
+        usedBamls.Add(resourcePart);
+      }
+    }
+
+    private void ScanWpfRoot()
+    {
+      string targetName = $"{definition.Name.Name}.g.resources";
+      foreach (Resource resource in definition.MainModule.Resources)
+      {
+        if (resource.Name == targetName)
+          wpfRootResource = resource as EmbeddedResource;
+
+        if (wpfRootResource != null)
+          break;
+      }
+
+      if (wpfRootResource == null)
+        return;
+
+      Log($"Found XAML root resource: {targetName}");
+
+      wpfRootParts = new Dictionary<string, ResourcePart>();
+
+      using (Stream stream = wpfRootResource.GetResourceStream())
+      {
+        using (ResourceReader reader = new ResourceReader(stream))
+          foreach (DictionaryEntry entry in reader)
           {
-            if (nestedType.FullName == entryPoint)
+            ResourcePart part = new ResourcePart(entry);
+
+            if (part.TypeName != null)
             {
-              entryPointTypes.Add(nestedType);
-              found = true;
-              break;
+              TypeDefinition type;
+              if (typesMap.TryGetValue(part.TypeName, out type))
+              {
+                part.TypeDef = type;
+                bamlMap.Add(type, part);
+              }
             }
+
+            wpfRootParts.Add(part.Name, part);
           }
-
-          if (found)
-            break;
-        }
-
-        if (!found)
-          throw new ArgumentException("Unable to resolve entry point: " + entryPoint);
       }
     }
 
@@ -263,6 +368,11 @@ namespace BrokenEvent.ILStrip
     /// <summary>
     /// Gets the list of entry points to start the used classes search.
     /// </summary>
+    /// <example>
+    /// <para>Use assembly-qualified names for classes.</para>
+    /// <para>Example of class: <c>MyAssembly.MyNamespace.MyClass</c></para>
+    /// <para>Example of nested class: <c>MyAssembly.MyNamespace.MyClass/MyNestedClass</c></para>
+    /// </example>
     public HashSet<string> EntryPoints
     {
       get { return entryPoints; }
@@ -271,6 +381,10 @@ namespace BrokenEvent.ILStrip
     /// <summary>
     /// Gets the list of exclusions to remain public if <see cref="MakeInternal"/> is used.
     /// </summary>
+    /// <example>
+    /// <para>Use assembly-qualified names for classes.</para>
+    /// <para>Example of class: <c>MyAssembly.MyNamespace.MyClass</c></para>
+    /// </example>
     public HashSet<string> MakeInternalExclusions
     {
       get { return makeInternalExclusions; }
@@ -294,6 +408,18 @@ namespace BrokenEvent.ILStrip
     }
 
     /// <summary>
+    /// Gets the list of BAML entry points used in search.
+    /// </summary>
+    /// <example>
+    /// <para>Use paths instead of namespaces and the lowecase. BAML name is the same as XAML in project but with different extension.</para>
+    /// <para>Example of BAML name: <c>ui/mainwindow.baml</c></para>
+    /// </example>
+    public HashSet<string> EntryPointBamls
+    {
+      get { return entryPointBamls; }
+    }
+
+    /// <summary>
     /// Gets the result list of unused types after <see cref="ScanUnusedClasses"/> call.
     /// </summary>
     public IList<TypeDefinition> UnusedTypes
@@ -307,15 +433,29 @@ namespace BrokenEvent.ILStrip
     /// </summary>
     public void ScanUsedClasses()
     {
+      BuildTypesMap();
+      ScanWpfRoot();
       ScanEntryPoints();
 
       Log("Scanning for used classes...");
 
-      foreach (TypeDefinition type in entryPointTypes)
-        WalkClass(type);
+      int classIndex = 0;
+      int bamlIndex = 0;
 
-      for (int i = 0; i < usedTypes.Count; i++)
-        WalkClass(usedTypes[i]);
+      while (classIndex < usedTypes.Count || bamlIndex < usedBamls.Count)
+      {
+        if (classIndex < usedTypes.Count)
+        {
+          WalkClass(usedTypes[classIndex]);
+          classIndex++;
+        }
+
+        if (bamlIndex < usedBamls.Count)
+        {
+          WalkBaml(usedBamls[bamlIndex]);
+          bamlIndex++;
+        }
+      }
     }
 
     /// <summary>
@@ -333,7 +473,7 @@ namespace BrokenEvent.ILStrip
 
         bool isNestedUsed = false;
         foreach (TypeDefinition nestedType in type.NestedTypes)
-          if (usedTypesCache.Contains(nestedType) || entryPointTypes.Contains(nestedType))
+          if (usedTypesCache.Contains(nestedType))
           {
             isNestedUsed = true;
             break;
@@ -345,9 +485,6 @@ namespace BrokenEvent.ILStrip
           }
 
         if (isNestedUsed)
-          continue;
-
-        if (entryPointTypes.Contains(type))
           continue;
 
         if (usedTypesCache.Contains(type))
