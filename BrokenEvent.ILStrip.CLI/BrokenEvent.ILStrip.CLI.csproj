@@ -33,25 +33,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="C5, Version=1.0.2.0, Culture=neutral, PublicKeyToken=06a1b38866503b69, processorArchitecture=MSIL">
-      <HintPath>..\packages\C5.1.0.2.0\lib\net40\C5.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
-    <Reference Include="Plossum CommandLine, Version=0.3.0.14, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Plossum.CommandLine.0.3.0.14\lib\net40\Plossum CommandLine.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="CommandLineLogger.cs" />
+    <Compile Include="CommandLineParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BrokenEvent.ILStrip\BrokenEvent.ILStrip.csproj">

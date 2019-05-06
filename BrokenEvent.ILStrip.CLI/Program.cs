@@ -1,6 +1,6 @@
 ﻿using System;
 
-using Plossum.CommandLine;
+using BrokenEvent.Shared.Algorithms;
 
 namespace BrokenEvent.ILStrip.CLI
 {
@@ -9,56 +9,41 @@ namespace BrokenEvent.ILStrip.CLI
     static int Main(string[] args)
     {
       CommandLineOptions options = new CommandLineOptions();
-      CommandLineParser parser = new CommandLineParser(options);
-      parser.Parse();
+      CommandLineParser<CommandLineOptions> parser = new CommandLineParser<CommandLineOptions>(options);
+      parser.AssignmentSyntax = true;
+      parser.WriteUsageOnError = true;
 
-      if (parser.HasErrors)
+      if (!parser.Parse(args))
       {
-        Console.WriteLine(parser.UsageInfo.ToString(78, true));
 #if DEBUG
         Console.ReadKey();
 #endif
         return 1;
       }
 
-      if (options.DoHelp)
-      {
-        Console.WriteLine(parser.UsageInfo.ToString());
-#if DEBUG
-        Console.ReadKey();
-#endif
-        return 0;
-      }
-
-      if (!options.Silent)
-        Console.WriteLine("BrokenEvent.ILStrip.CLI, (C)2017, Broken Event");
-
       if (!options.Silent)
         Console.WriteLine("Reading: " + options.InputFilename);
 
       using (ILStrip ilStrip = new ILStrip(options.InputFilename))
       {
-        //ilStrip.EntryPoints.Add("ILStripWPFTestLib.UI.MainWindow");
-        ilStrip.EntryPoints.Add("ILStripWPFTestLib.UI.UnusedWindow");
-        ilStrip.RemoveUnknownResources = true;
-
         if (!options.Silent)
           ilStrip.Logger = new CommandLineLogger();
 
         foreach (string s in options.EntryPoints)
           ilStrip.EntryPoints.Add(s);
 
+        foreach (string s in options.ResourceExclusions)
+          ilStrip.UnusedResourceExclusions.Add(s);
+        foreach (string s in options.WpfResourceExclusions)
+          ilStrip.UnusedWpfResourceExclusions.Add(s);
+
+        ilStrip.RemoveUnknownResources = options.RemoveUnknownResources;
+
         ilStrip.ScanUsedClasses();
         ilStrip.ScanUnusedClasses();
-
-        if (options.CleanUnusedClasses)
-          ilStrip.CleanupUnusedClasses();
-
-        if (options.CleanUnusedReferences)
-          ilStrip.CleanupUnusedReferences();
-
-        if (options.CleanUnusedResources)
-          ilStrip.CleanupUnusedResources();
+        ilStrip.CleanupUnusedClasses();
+        ilStrip.CleanupUnusedReferences();
+        ilStrip.CleanupUnusedResources();
 
         if (options.HideApi)
         {
@@ -70,6 +55,7 @@ namespace BrokenEvent.ILStrip.CLI
 
         if (!options.Silent)
           Console.WriteLine("Writing: " + options.OutputFilename);
+
         ilStrip.Save(options.OutputFilename);
       }
 

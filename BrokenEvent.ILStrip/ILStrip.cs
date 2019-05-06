@@ -790,10 +790,13 @@ namespace BrokenEvent.ILStrip
 
     public void Dispose()
     {
-      foreach (KeyValuePair<string, ResourcePart> part in wpfRootParts)
-        part.Value.Dispose();
+      if (wpfRootParts != null)
+      {
+        foreach (KeyValuePair<string, ResourcePart> part in wpfRootParts)
+          part.Value.Dispose();
 
-      wpfRootParts.Clear();
+        wpfRootParts.Clear();
+      }
     }
 
     #endregion

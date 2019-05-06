@@ -1,52 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
-using Plossum.CommandLine;
+using BrokenEvent.Shared.Algorithms;
 
 namespace BrokenEvent.ILStrip.CLI
 {
-  [CommandLineManager(ApplicationName = "BrokenEvent.ILStrip.CLI", Copyright = "(C)2017-2019, Broken Event", EnabledOptionStyles = OptionStyles.Windows)]
+  [CommandModel("BrokenEvent.ILStrip.CLI, (c)2017-2019 Broken Event")]
   internal class CommandLineOptions
   {
     private string inputFilename;
 
-    [CommandLineOption(Name = "s", Aliases = "silent", Description = "Suppress logging.")]
-    public bool Silent { get; set; }
-
-    [CommandLineOption(Aliases = "i", Name = "input", Description = "Input assembly filename to process.", MinOccurs = 1)]
+    [Command(0, "Input assembly filename to process.", "input", isRequired:true)]
     public string InputFilename
     {
       get { return inputFilename; }
       set
       {
         if (!File.Exists(value))
-          throw new InvalidOptionValueException("File not found: " + value);
+          throw new ArgumentException("File not found: " + value);
+
         inputFilename = value;
       }
     }
 
-    [CommandLineOption(Aliases = "o", Name = "output", Description = "Output assembly filename to save.", MinOccurs = 1)]
+    [Command(1, "Output assembly filename to save processed assembly.", "output", isRequired: true)]
     public string OutputFilename { get; set; }
 
-    [CommandLineOption(Name = "entry", Description = "User defined entry points list to start analysis. Multiple values.", RequireExplicitAssignment = true)]
-    public List<string> EntryPoints { get; } = new List<string>();
+    [Command("s", "Suppresses logging.", alias: "silent", isFlag:true)]
+    public bool Silent { get; set; }
 
-    [CommandLineOption(Name = "exclude", Description = "Exclusions from hiding list. Multiple values.", RequireExplicitAssignment = true)]
-    public List<string> HideExclusions { get; } = new List<string>();
+    [Command("e", "User defined entry point classes list to start analysis. Multiple values.", "MyAssembly.MyNamespace.MyClass")]
+    public List<string> EntryPoints { get; set; } = new List<string>();
 
-    [CommandLineOption(Aliases = "c", Name = "classes", Description = "Clean unused classes.")]
-    public bool CleanUnusedClasses { get; set; }
-
-    [CommandLineOption(Aliases = "r", Name = "refs", Description = "Clean unused references.")]
-    public bool CleanUnusedReferences { get; set; }
-
-    [CommandLineOption(Aliases = "rs", Name = "res", Description = "Clean unused WinForms resources.")]
-    public bool CleanUnusedResources { get; set; }
-
-    [CommandLineOption(Aliases = "h", Name = "hide", Description = "Hide public API with internal.")]
+    [Command("h", "Hide public API with internal access modifier.", alias:"hide", isFlag:true)]
     public bool HideApi { get; set; }
 
-    [CommandLineOption(Name = "?", Aliases = "Help", Description = "Displays this help message")]
-    public bool DoHelp { get; set; }
+    [Command("he", "Exclusions for -h option. Multiple values.", "MyAssembly.MyNamespace.MyClass")]
+    public List<string> HideExclusions { get; set; } = new List<string>();
+
+    [Command("u", "Removes all unknown resources.", isFlag:true)]
+    public bool RemoveUnknownResources { get; set; }
+
+    [Command("re", "Resource exclusions for -u option. Multiple values.", "MyAssembly.MyNamespace.MyResource")]
+    public List<string> ResourceExclusions { get; set; } = new List<string>();
+
+    [Command("we", "WPF Resource exclusions for -u option. Multiple values.", "resources/myresource.png")]
+    public List<string> WpfResourceExclusions { get; set; } = new List<string>();
   }
 }
