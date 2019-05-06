@@ -30,19 +30,19 @@ namespace BrokenEvent.ILStrip.CLI
     [Command("s", "Suppresses logging.", alias: "silent", isFlag:true)]
     public bool Silent { get; set; }
 
-    [Command("e", "User defined entry point classes list to start analysis. Multiple values.", "MyAssembly.MyNamespace.MyClass")]
+    [Command("e", "User defined entry point classes list to start analysis. Multiple values.", "MyNamespace.MyClass")]
     public List<string> EntryPoints { get; set; } = new List<string>();
 
     [Command("h", "Hide public API with internal access modifier.", alias:"hide", isFlag:true)]
     public bool HideApi { get; set; }
 
-    [Command("he", "Exclusions for -h option. Multiple values.", "MyAssembly.MyNamespace.MyClass")]
+    [Command("he", "Exclusions for -h option. Multiple values.", "MyNamespace.MyClass")]
     public List<string> HideExclusions { get; set; } = new List<string>();
 
     [Command("u", "Removes all unknown resources.", isFlag:true)]
     public bool RemoveUnknownResources { get; set; }
 
-    [Command("re", "Resource exclusions for -u option. Multiple values.", "MyAssembly.MyNamespace.MyResource")]
+    [Command("re", "Resource exclusions for -u option. Multiple values.", "MyNamespace.MyResource")]
     public List<string> ResourceExclusions { get; set; } = new List<string>();
 
     [Command("we", "WPF Resource exclusions for -u option. Multiple values.", "resources/myresource.png")]

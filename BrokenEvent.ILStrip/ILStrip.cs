@@ -476,9 +476,9 @@ namespace BrokenEvent.ILStrip
     /// Gets the list of entry points to start the used classes search.
     /// </summary>
     /// <example>
-    /// <para>Use assembly-qualified names for classes.</para>
-    /// <para>Example of class: <c>MyAssembly.MyNamespace.MyClass</c></para>
-    /// <para>Example of nested class: <c>MyAssembly.MyNamespace.MyClass/MyNestedClass</c></para>
+    /// <para>Use namespace-qualified names for classes.</para>
+    /// <para>Example of class: <c>MyNamespace.MyClass</c></para>
+    /// <para>Example of nested class: <c>MyNamespace.MyClass/MyNestedClass</c></para>
     /// </example>
     public HashSet<string> EntryPoints
     {
@@ -489,8 +489,8 @@ namespace BrokenEvent.ILStrip
     /// Gets the list of exclusions to remain public if <see cref="MakeInternal"/> is used.
     /// </summary>
     /// <example>
-    /// <para>Use assembly-qualified names for classes.</para>
-    /// <para>Example of class: <c>MyAssembly.MyNamespace.MyClass</c></para>
+    /// <para>Use namespace-qualified names for classes.</para>
+    /// <para>Example of class: <c>MyNamespace.MyClass</c></para>
     /// </example>
     public HashSet<string> MakeInternalExclusions
     {
