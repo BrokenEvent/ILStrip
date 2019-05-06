@@ -13,7 +13,7 @@ namespace BrokenEvent.ILStrip.Tests
   {
     private readonly AssemblyDefinition definition;
     private Dictionary<string, TypeDefinition> types = new Dictionary<string, TypeDefinition>();
-    private HashSet<string> bamls = new HashSet<string>();
+    private HashSet<string> resources = new HashSet<string>();
 
     public AssemblyAsserts(ILStrip strip)
     {
@@ -50,11 +50,7 @@ namespace BrokenEvent.ILStrip.Tests
       {
         using (ResourceReader reader = new ResourceReader(stream))
           foreach (DictionaryEntry entry in reader)
-          {
-            string name = (string)entry.Key;
-            if (name.EndsWith(".baml"))
-              bamls.Add(name);
-          }
+            resources.Add((string)entry.Key);
       }
     }
 
@@ -112,14 +108,14 @@ namespace BrokenEvent.ILStrip.Tests
           Assert.Fail("Reference " + name + " found");
     }
 
-    public void AssertBaml(string name)
+    public void AssertWpfResource(string name)
     {
-      Assert.True(bamls.Contains(name), "Baml " + name + " not found");
+      Assert.True(resources.Contains(name), "WPF resource " + name + " not found");
     }
 
-    public void AssertNoBaml(string name)
+    public void AssertNoWpfResource(string name)
     {
-      Assert.True(!bamls.Contains(name), "Baml " + name + " found");
+      Assert.True(!resources.Contains(name), "WPF resource " + name + " found");
     }
   }
 

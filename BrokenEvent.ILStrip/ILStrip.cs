@@ -15,6 +15,10 @@ namespace BrokenEvent.ILStrip
   public partial class ILStrip: IDisposable
   {
     private readonly AssemblyDefinition definition;
+    private readonly string wpfRootResourceName;
+    private readonly string wpfPathPrefix;
+    private readonly string resourceManagerResourceName;
+
     private HashSet<string> entryPoints = new HashSet<string>();
     private HashSet<string> entryPointBamls = new HashSet<string>();
 
@@ -22,6 +26,7 @@ namespace BrokenEvent.ILStrip
     private List<TypeDefinition> usedTypes = new List<TypeDefinition>();
     private List<TypeDefinition> unusedTypes = new List<TypeDefinition>();
     private List<ResourcePart> usedBamls = new List<ResourcePart>();
+    private HashSet<string> usedWpfResources = new HashSet<string>();
 
     private Dictionary<string, TypeDefinition> typesMap = new Dictionary<string, TypeDefinition>();
     private Dictionary<TypeDefinition, ResourcePart> bamlMap = new Dictionary<TypeDefinition, ResourcePart>();
@@ -30,7 +35,9 @@ namespace BrokenEvent.ILStrip
     private HashSet<ModuleReference> usedUnmanagedReferences = new HashSet<ModuleReference>();
     private HashSet<string> makeInternalExclusions = new HashSet<string>();
     private HashSet<string> unusedResourceExclusions = new HashSet<string>();
+    private HashSet<string> unusedWpfResourceExclusions = new HashSet<string>();
     private HashSet<string> removeAttributesNamespaces = new HashSet<string>();
+    private bool removeUnknownResources = false;
 
     private EmbeddedResource wpfRootResource;
     private Dictionary<string, ResourcePart> wpfRootParts;
@@ -42,6 +49,10 @@ namespace BrokenEvent.ILStrip
     public ILStrip(AssemblyDefinition definition)
     {
       this.definition = definition;
+
+      wpfRootResourceName = $"{definition.Name.Name}.g.resources";
+      wpfPathPrefix = $"/{definition.Name.Name};component/";
+      resourceManagerResourceName = $"{definition.Name.Name}.Properties.Resources.resources";
     }
 
     /// <summary>
@@ -185,8 +196,6 @@ namespace BrokenEvent.ILStrip
 
     private void WalkBaml(ResourcePart part)
     {
-      string pathPrefix = $"/{definition.Name.Name};component/";
-
       foreach (BamlRecord record in part.Baml)
       {
         if (record.Type == BamlRecordType.TypeInfo)
@@ -204,14 +213,26 @@ namespace BrokenEvent.ILStrip
         {
           PropertyWithConverterRecord propertyInfo = (PropertyWithConverterRecord)record;
 
-          if (propertyInfo.Value.EndsWith(".xaml", StringComparison.InvariantCultureIgnoreCase) &&
-              propertyInfo.Value.StartsWith(pathPrefix))
-          {
-            string bamlName = propertyInfo.Value.Substring(pathPrefix.Length, propertyInfo.Value.Length - pathPrefix.Length - 4).ToLower() + "baml";
+          string resourceName = propertyInfo.Value;
 
-            ResourcePart resourcePart;
-            if (wpfRootParts != null && wpfRootParts.TryGetValue(bamlName, out resourcePart) && resourcePart.Baml != null)
-              AddUsedBaml(resourcePart);
+          if (resourceName.StartsWith(wpfPathPrefix))
+            resourceName = resourceName.Substring(wpfPathPrefix.Length, resourceName.Length - wpfPathPrefix.Length);
+
+          if (resourceName.EndsWith(".xaml", StringComparison.InvariantCultureIgnoreCase))
+            resourceName = resourceName.Substring(0, resourceName.Length - 4) + "baml";
+
+          resourceName = resourceName.ToLower();
+
+          ResourcePart resourcePart;
+          if (!wpfRootParts.TryGetValue(resourceName, out resourcePart))
+            continue;
+
+          if (resourcePart.Baml != null)
+            AddUsedBaml(resourcePart);
+          else
+          {
+            Log($"WPF resource used: {resourceName}");
+            usedWpfResources.Add(resourceName);
           }
         }
       }
@@ -238,7 +259,7 @@ namespace BrokenEvent.ILStrip
       {
         if (!usedReferences.Contains(typeDef.Module))
         {
-          Log($"Reference used: {typeDef.Module.FullyQualifiedName}");
+          //Log($"Reference used: {typeDef.Module.FullyQualifiedName}");
           usedReferences.Add(typeDef.Module);
         }
         return;
@@ -321,10 +342,9 @@ namespace BrokenEvent.ILStrip
 
     private void ScanWpfRoot()
     {
-      string targetName = $"{definition.Name.Name}.g.resources";
       foreach (Resource resource in definition.MainModule.Resources)
       {
-        if (resource.Name == targetName)
+        if (resource.Name == wpfRootResourceName)
           wpfRootResource = resource as EmbeddedResource;
 
         if (wpfRootResource != null)
@@ -334,7 +354,7 @@ namespace BrokenEvent.ILStrip
       if (wpfRootResource == null)
         return;
 
-      Log($"Found XAML root resource: {targetName}");
+      Log($"Found WPF root resource: {wpfRootResourceName}");
 
       wpfRootParts = new Dictionary<string, ResourcePart>();
 
@@ -369,13 +389,25 @@ namespace BrokenEvent.ILStrip
           int count = 0;
           foreach (KeyValuePair<string, ResourcePart> pair in wpfRootParts)
           {
-            if (pair.Value.Baml == null || usedBamls.Contains(pair.Value))
+            if (!unusedWpfResourceExclusions.Contains(pair.Value.Name))
             {
-              writer.AddResource(pair.Key, pair.Value.Stream, false);
-              count++;
+              if (pair.Value.Baml != null)
+              {
+                if (!usedBamls.Contains(pair.Value))
+                {
+                  Log($"Cleaned up unused BAML: {pair.Key}");
+                  continue;
+                }
+              }
+              else if (!usedWpfResources.Contains(pair.Value.Name) && removeUnknownResources)
+              {
+                Log($"Cleaned up unused WPF resource: {pair.Key}");
+                continue;
+              }
             }
-            else
-              Log($"Cleaned up unused baml: {pair.Key}");
+
+            writer.AddResource(pair.Key, pair.Value.Stream, false);
+            count++;
           }
 
           if (count > 0)
@@ -384,6 +416,52 @@ namespace BrokenEvent.ILStrip
 
         return new EmbeddedResource(wpfRootResource.Name, wpfRootResource.Attributes, stream.ToArray());
       }
+    }
+
+    private bool CheckIfResourceShouldRemain(Resource resource, int i)
+    {
+      // exclusion
+      if (unusedResourceExclusions.Contains(resource.Name))
+      {
+        Log($"Resource used: {resource.Name} (exclusion)");
+        return true;
+      }
+
+      // WPF root resource
+      if (resource == wpfRootResource)
+      {
+        definition.MainModule.Resources[i] = RebuildWpfRoot();
+        return true;
+      }
+
+      // Resource manager resource
+      if (resource.Name == resourceManagerResourceName)
+        return true;
+
+      const string RES_SUFFIX = ".resources";
+
+      // class resource?
+      if (resource.Name.EndsWith(RES_SUFFIX))
+      {
+        string typeName = resource.Name.Substring(0, resource.Name.Length - RES_SUFFIX.Length);
+
+        TypeDefinition type;
+        if (typesMap.TryGetValue(typeName, out type))
+        {
+          // used?
+          if (usedTypesCache.Contains(type))
+          {
+            Log($"Resource used: {resource.Name} (used class)");
+            return true;
+          }
+
+          // surely unused?
+          if (unusedTypes.Contains(type))
+            return false;
+        }
+      }
+
+      return !removeUnknownResources;
     }
 
     /// <summary>
@@ -425,6 +503,14 @@ namespace BrokenEvent.ILStrip
     }
 
     /// <summary>
+    /// Gets the list of exlcusions in WPF resources.
+    /// </summary>
+    public HashSet<string> UnusedWpfResourceExclusions
+    {
+      get { return unusedWpfResourceExclusions; }
+    }
+
+    /// <summary>
     /// Gets the list of namespaces of the custom attributes to be removed.
     /// </summary>
     /// <remarks>Removal occurs in <see cref="ScanUsedClasses"/> so the list should be filled before this call.</remarks>
@@ -451,6 +537,21 @@ namespace BrokenEvent.ILStrip
     public IList<TypeDefinition> UnusedTypes
     {
       get { return unusedTypes; }
+    }
+
+    /// <summary>
+    /// Gets or sets the value indicating whether to remove all resources which usage is unknown.
+    /// </summary>
+    /// <remarks>
+    /// <para>Be very careful when enabling this option. In this case ILStrip will
+    /// remove any resource (embedded resources or WPF resources) which it doesn't know.</para>
+    /// <para>When using this option you should be certain that <see cref="UnusedWpfResourceExclusions"/>
+    /// and <see cref="UnusedResourceExclusions"/> are set properly.</para>
+    /// </remarks>
+    public bool RemoveUnknownResources
+    {
+      get { return removeUnknownResources; }
+      set { removeUnknownResources = value; }
     }
 
     /// <summary>
@@ -522,8 +623,7 @@ namespace BrokenEvent.ILStrip
     }
 
     /// <summary>
-    /// Cleans all unused resources. Resource will remain in assembly if it is class-related resource (MyClassName.resource) of the used class
-    /// (be aware to run <see cref="ScanUsedClasses"/> before) or is in <see cref="UnusedResourceExclusions"/> list.
+    /// Cleans all unused resources.
     /// </summary>
     public void CleanupUnusedResources()
     {
@@ -533,38 +633,15 @@ namespace BrokenEvent.ILStrip
       while (i < definition.MainModule.Resources.Count)
       {
         Resource resource = definition.MainModule.Resources[i];
-        
-        bool shouldClean = true;
-        foreach (TypeDefinition type in usedTypes)
-          if (resource.Name == type.FullName + ".resources")
-          {
-            shouldClean = false;
-            Log("Resource used: " + resource.Name + " (used class)");
-            break;
-          }
 
-        if (shouldClean)
+        if (CheckIfResourceShouldRemain(resource, i))
         {
-          if (unusedResourceExclusions.Contains(resource.Name))
-          {
-            shouldClean = false;
-            Log("Resource used: " + resource.Name + " (exclusion)");
-          }
-        }
-
-        if (resource == wpfRootResource)
-        {
-          definition.MainModule.Resources[i] = RebuildWpfRoot();
-          shouldClean = false;
-        }
-
-        if (shouldClean)
-        {
-          Log("Resource unused: " + resource.Name);
-          definition.MainModule.Resources.RemoveAt(i);
-        }
-        else
           i++;
+          continue;
+        }
+
+        Log("Resource removed: " + resource.Name);
+        definition.MainModule.Resources.RemoveAt(i);
       }
     }
 

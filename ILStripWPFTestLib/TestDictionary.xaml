@@ -3,4 +3,5 @@
                     xmlns:local="clr-namespace:ILStripWPFTestLib"
                     xmlns:converters="clr-namespace:ILStripWPFTestLib.ViewModel.Converters">
   <converters:UnusedValueConverter x:Key="UnusedValueConverter"/>
+  <BitmapImage x:Key="BELogo" UriSource="Resources/BrokenEventLogo.png" />
 </ResourceDictionary>

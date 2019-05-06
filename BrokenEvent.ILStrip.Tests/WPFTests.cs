@@ -25,9 +25,9 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.UI.UnusedWindow");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.UnusedViewModel");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
-      asserts.AssertNoBaml("ui/mainwindow.baml");
-      asserts.AssertNoBaml("ui/unusedwindow.baml");
-      asserts.AssertNoBaml("testdictionary.baml");
+      asserts.AssertNoWpfResource("ui/mainwindow.baml");
+      asserts.AssertNoWpfResource("ui/unusedwindow.baml");
+      asserts.AssertNoWpfResource("testdictionary.baml");
     }
 
     [Test]
@@ -49,9 +49,9 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.UI.UnusedWindow");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.UnusedViewModel");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
-      asserts.AssertBaml("ui/mainwindow.baml");
-      asserts.AssertNoBaml("ui/unusedwindow.baml");
-      asserts.AssertNoBaml("testdictionary.baml");
+      asserts.AssertWpfResource("ui/mainwindow.baml");
+      asserts.AssertNoWpfResource("ui/unusedwindow.baml");
+      asserts.AssertNoWpfResource("testdictionary.baml");
     }
 
     [Test]
@@ -73,9 +73,9 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.UI.UnusedWindow");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.UnusedViewModel");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
-      asserts.AssertBaml("ui/mainwindow.baml");
-      asserts.AssertNoBaml("ui/unusedwindow.baml");
-      asserts.AssertNoBaml("testdictionary.baml");
+      asserts.AssertWpfResource("ui/mainwindow.baml");
+      asserts.AssertNoWpfResource("ui/unusedwindow.baml");
+      asserts.AssertNoWpfResource("testdictionary.baml");
     }
 
     [Test]
@@ -99,9 +99,9 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertClass("ILStripWPFTestLib.UI.UnusedWindow", ClassModifier.Internal);
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.UnusedViewModel", ClassModifier.Internal);
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter", ClassModifier.Internal);
-      asserts.AssertBaml("ui/mainwindow.baml");
-      asserts.AssertBaml("ui/unusedwindow.baml");
-      asserts.AssertBaml("testdictionary.baml");
+      asserts.AssertWpfResource("ui/mainwindow.baml");
+      asserts.AssertWpfResource("ui/unusedwindow.baml");
+      asserts.AssertWpfResource("testdictionary.baml");
     }
 
     [Test]
@@ -124,10 +124,58 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.UI.UnusedWindow");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.UnusedViewModel");
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
-      asserts.AssertBaml("ui/mainwindow.baml");
-      asserts.AssertNoBaml("ui/unusedwindow.baml");
-      asserts.AssertBaml("testdictionary.baml");
+      asserts.AssertWpfResource("ui/mainwindow.baml");
+      asserts.AssertNoWpfResource("ui/unusedwindow.baml");
+      asserts.AssertWpfResource("testdictionary.baml");
     }
 
+    [Test]
+    public void RemoveUnknownResourcesUsed()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripWPFTestLib.exe"));
+      strip.EntryPoints.Add("ILStripWPFTestLib.UI.UnusedWindow");
+      strip.RemoveUnknownResources = true;
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+      strip.CleanupUnusedResources();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertWpfResource("resources/brokeneventlogo.png");
+    }
+
+    [Test]
+    public void RemoveUnknownResourcesUnused()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripWPFTestLib.exe"));
+      strip.EntryPoints.Add("ILStripWPFTestLib.UI.MainWindow");
+      strip.RemoveUnknownResources = true;
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+      strip.CleanupUnusedResources();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertNoWpfResource("resources/brokeneventlogo.png");
+    }
+
+    [Test]
+    public void RemoveUnknownResourcesExcluded()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripWPFTestLib.exe"));
+      strip.EntryPoints.Add("ILStripWPFTestLib.UI.MainWindow");
+      strip.UnusedWpfResourceExclusions.Add("resources/brokeneventlogo.png");
+      strip.RemoveUnknownResources = true;
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+      strip.CleanupUnusedResources();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertWpfResource("resources/brokeneventlogo.png");
+    }
   }
 }

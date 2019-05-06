@@ -38,6 +38,10 @@ namespace BrokenEvent.ILStrip.CLI
 
       using (ILStrip ilStrip = new ILStrip(options.InputFilename))
       {
+        //ilStrip.EntryPoints.Add("ILStripWPFTestLib.UI.MainWindow");
+        ilStrip.EntryPoints.Add("ILStripWPFTestLib.UI.UnusedWindow");
+        ilStrip.RemoveUnknownResources = true;
+
         if (!options.Silent)
           ilStrip.Logger = new CommandLineLogger();
 

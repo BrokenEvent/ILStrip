@@ -17,8 +17,10 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <CheckBox IsChecked="{Binding IsChecked}" Grid.Row="0" Content="Checkbox"/>
     <TextBlock Text="{Binding IsChecked, Converter={StaticResource UnusedValueConverter}}" Grid.Row="1"/>
+    <Image Source="{StaticResource BELogo}" Stretch="None" Grid.Row="2" HorizontalAlignment="Left" />
   </Grid>
 </Window>
