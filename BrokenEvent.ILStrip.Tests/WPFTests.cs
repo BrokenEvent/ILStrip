@@ -15,6 +15,7 @@ namespace BrokenEvent.ILStrip.Tests
       strip.ScanUsedClasses();
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
+      strip.CleanupUnusedResources();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
       asserts.AssertClass("ILStripWPFTestLib.App");
@@ -24,6 +25,9 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.UI.UnusedWindow");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.UnusedViewModel");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
+      asserts.AssertNoBaml("ui/mainwindow.baml");
+      asserts.AssertNoBaml("ui/unusedwindow.baml");
+      asserts.AssertNoBaml("testdictionary.baml");
     }
 
     [Test]
@@ -35,6 +39,7 @@ namespace BrokenEvent.ILStrip.Tests
       strip.ScanUsedClasses();
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
+      strip.CleanupUnusedResources();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
       asserts.AssertClass("ILStripWPFTestLib.App");
@@ -44,6 +49,9 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.UI.UnusedWindow");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.UnusedViewModel");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
+      asserts.AssertBaml("ui/mainwindow.baml");
+      asserts.AssertNoBaml("ui/unusedwindow.baml");
+      asserts.AssertNoBaml("testdictionary.baml");
     }
 
     [Test]
@@ -55,6 +63,7 @@ namespace BrokenEvent.ILStrip.Tests
       strip.ScanUsedClasses();
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
+      strip.CleanupUnusedResources();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
       asserts.AssertClass("ILStripWPFTestLib.App");
@@ -64,6 +73,9 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.UI.UnusedWindow");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.UnusedViewModel");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
+      asserts.AssertBaml("ui/mainwindow.baml");
+      asserts.AssertNoBaml("ui/unusedwindow.baml");
+      asserts.AssertNoBaml("testdictionary.baml");
     }
 
     [Test]
@@ -77,15 +89,44 @@ namespace BrokenEvent.ILStrip.Tests
       strip.ScanUnusedClasses();
       strip.CleanupUnusedClasses();
       strip.MakeInternal();
+      strip.CleanupUnusedResources();
 
       AssemblyAsserts asserts = new AssemblyAsserts(strip);
-      asserts.AssertClassPublic("ILStripWPFTestLib.App", false);
-      asserts.AssertClassPublic("ILStripWPFTestLib.UI.MainWindow", false);
-      asserts.AssertClassPublic("ILStripWPFTestLib.ViewModel.UsedViewModel", false);
-      asserts.AssertClassPublic("ILStripWPFTestLib.ViewModel.Converters.UsedValueConverter", false);
-      asserts.AssertClassPublic("ILStripWPFTestLib.UI.UnusedWindow", false);
-      asserts.AssertClassPublic("ILStripWPFTestLib.ViewModel.UnusedViewModel", false);
-      asserts.AssertClassPublic("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter", false);
+      asserts.AssertClass("ILStripWPFTestLib.App", ClassModifier.Internal);
+      asserts.AssertClass("ILStripWPFTestLib.UI.MainWindow", ClassModifier.Internal);
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.UsedViewModel", ClassModifier.Internal);
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.Converters.UsedValueConverter", ClassModifier.Internal);
+      asserts.AssertClass("ILStripWPFTestLib.UI.UnusedWindow", ClassModifier.Internal);
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.UnusedViewModel", ClassModifier.Internal);
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter", ClassModifier.Internal);
+      asserts.AssertBaml("ui/mainwindow.baml");
+      asserts.AssertBaml("ui/unusedwindow.baml");
+      asserts.AssertBaml("testdictionary.baml");
+    }
+
+    [Test]
+    public void ManualBamlExclusion()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripWPFTestLib.exe"));
+      strip.EntryPointBamls.Add("ui/mainwindow.baml");
+      strip.EntryPointBamls.Add("testdictionary.baml");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+      strip.CleanupUnusedResources();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertClass("ILStripWPFTestLib.App");
+      asserts.AssertClass("ILStripWPFTestLib.UI.MainWindow");
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.UsedViewModel");
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.Converters.UsedValueConverter");
+      asserts.AssertNoClass("ILStripWPFTestLib.UI.UnusedWindow");
+      asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.UnusedViewModel");
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
+      asserts.AssertBaml("ui/mainwindow.baml");
+      asserts.AssertNoBaml("ui/unusedwindow.baml");
+      asserts.AssertBaml("testdictionary.baml");
     }
 
   }

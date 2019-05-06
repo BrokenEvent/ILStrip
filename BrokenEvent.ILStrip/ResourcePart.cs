@@ -25,6 +25,7 @@ namespace BrokenEvent.ILStrip
         return;
 
       baml = BamlReader.ReadDocument(stream);
+      stream.Position = 0;
 
       foreach (BamlRecord record in baml)
       {
@@ -59,6 +60,11 @@ namespace BrokenEvent.ILStrip
     }
 
     public TypeDefinition TypeDef { get; set; }
+
+    public Stream Stream
+    {
+      get { return stream; }
+    }
 
     public void Dispose()
     {

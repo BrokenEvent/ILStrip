@@ -360,6 +360,32 @@ namespace BrokenEvent.ILStrip
       }
     }
 
+    private Resource RebuildWpfRoot()
+    {
+      using (MemoryStream stream = new MemoryStream())
+      {
+        using (ResourceWriter writer = new ResourceWriter(stream))
+        {
+          int count = 0;
+          foreach (KeyValuePair<string, ResourcePart> pair in wpfRootParts)
+          {
+            if (pair.Value.Baml == null || usedBamls.Contains(pair.Value))
+            {
+              writer.AddResource(pair.Key, pair.Value.Stream, false);
+              count++;
+            }
+            else
+              Log($"Cleaned up unused baml: {pair.Key}");
+          }
+
+          if (count > 0)
+            writer.Generate();
+        }
+
+        return new EmbeddedResource(wpfRootResource.Name, wpfRootResource.Attributes, stream.ToArray());
+      }
+    }
+
     /// <summary>
     /// Gets or sets the logger to log ILStrip activity.
     /// </summary>
@@ -527,7 +553,10 @@ namespace BrokenEvent.ILStrip
         }
 
         if (resource == wpfRootResource)
+        {
+          definition.MainModule.Resources[i] = RebuildWpfRoot();
           shouldClean = false;
+        }
 
         if (shouldClean)
         {

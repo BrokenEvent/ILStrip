@@ -58,20 +58,21 @@ namespace BrokenEvent.ILStrip.Tests
       }
     }
 
-    public void AssertClass(string className)
-    {
-      Assert.IsTrue(types.ContainsKey(className), "Class " + className + " not found");
-    }
-
-    public void AssertClassPublic(string className, bool isPublic = true)
+    public void AssertClass(string className, ClassModifier modifier = ClassModifier.DontCare)
     {
       TypeDefinition type;
       Assert.IsTrue(types.TryGetValue(className, out type), "Class " + className + " not found");
 
-      if (isPublic)
-        Assert.True((type.Attributes & (TypeAttributes.Public | TypeAttributes.NestedPublic)) != 0, className + " should be public");
-      else
-        Assert.True((type.Attributes & (TypeAttributes.Public | TypeAttributes.NestedPublic)) == 0, className + " should not be public");
+      switch (modifier)
+      {
+        case ClassModifier.Public:
+          Assert.True((type.Attributes & (TypeAttributes.Public | TypeAttributes.NestedPublic)) != 0, className + " should be public");
+          break;
+
+        case ClassModifier.Internal:
+          Assert.True((type.Attributes & (TypeAttributes.Public | TypeAttributes.NestedPublic)) == 0, className + " should not be public");
+          break;
+      }
     }
 
     public void AssertNoClass(string className)
@@ -115,9 +116,17 @@ namespace BrokenEvent.ILStrip.Tests
     {
       Assert.True(bamls.Contains(name), "Baml " + name + " not found");
     }
+
     public void AssertNoBaml(string name)
     {
       Assert.True(!bamls.Contains(name), "Baml " + name + " found");
     }
+  }
+
+  enum ClassModifier
+  {
+    DontCare,
+    Public,
+    Internal
   }
 }
