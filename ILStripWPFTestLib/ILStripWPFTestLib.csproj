@@ -48,9 +48,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="UI\UnusedControl.xaml.cs">
+      <DependentUpon>UnusedControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\UnusedWindow.xaml.cs">
       <DependentUpon>UnusedWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\UsedControl.xaml.cs">
+      <DependentUpon>UsedControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\TestExtension.cs" />
     <Compile Include="ViewModel\Converters\UnusedValueConverter.cs" />
     <Compile Include="ViewModel\Converters\UsedValueConverter.cs" />
     <Compile Include="ViewModel\UnusedViewModel.cs" />
@@ -71,7 +78,15 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UI\UnusedControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\UnusedWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\UsedControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

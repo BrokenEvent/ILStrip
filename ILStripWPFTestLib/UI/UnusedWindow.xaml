@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:ILStripWPFTestLib.ViewModel"
+        xmlns:ui="clr-namespace:ILStripWPFTestLib.UI"
         mc:Ignorable="d"
         Title="UnusedWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance Type=viewModel:UnusedViewModel}">
   <Window.Resources>
@@ -18,9 +19,11 @@
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <CheckBox IsChecked="{Binding IsChecked}" Grid.Row="0" Content="Checkbox"/>
     <TextBlock Text="{Binding IsChecked, Converter={StaticResource UnusedValueConverter}}" Grid.Row="1"/>
     <Image Source="{StaticResource BELogo}" Stretch="None" Grid.Row="2" HorizontalAlignment="Left" />
+    <ui:UnusedControl Grid.Row="3"/>
   </Grid>
 </Window>
