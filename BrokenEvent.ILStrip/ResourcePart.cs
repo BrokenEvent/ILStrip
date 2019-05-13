@@ -32,8 +32,6 @@ namespace BrokenEvent.ILStrip
         if (record.Type == BamlRecordType.TypeInfo)
         {
           TypeInfoRecord typeInfo = (TypeInfoRecord)record;
-          if (typeInfo.AssemblyId != 0)
-            continue;
 
           typeName = typeInfo.TypeFullName;
           break;
