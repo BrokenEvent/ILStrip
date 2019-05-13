@@ -24,7 +24,7 @@ namespace BrokenEvent.ILStrip
     /// <returns>List of all uses typenames.</returns>
     public string GetUsedTypesList(string separator = "\r\n")
     {
-      return string.Join(separator, usedTypes.Select(t => t.FullName));
+      return string.Join(separator, usedTypesCache.Select(t => t.FullName));
     }
 
     /// <summary>

@@ -23,9 +23,12 @@ namespace BrokenEvent.ILStrip
     private HashSet<string> entryPointBamls = new HashSet<string>();
 
     private HashSet<TypeDefinition> usedTypesCache = new HashSet<TypeDefinition>();
-    private List<TypeDefinition> usedTypes = new List<TypeDefinition>();
+    private Queue<TypeDefinition> typesToScan = new Queue<TypeDefinition>();
+
     private List<TypeDefinition> unusedTypes = new List<TypeDefinition>();
-    private List<ResourcePart> usedBamls = new List<ResourcePart>();
+
+    private HashSet<ResourcePart> usedBamlsCache = new HashSet<ResourcePart>();
+    private Queue<ResourcePart> bamlsToScan = new Queue<ResourcePart>();
     private HashSet<string> usedWpfResources = new HashSet<string>();
 
     private Dictionary<string, TypeDefinition> typesMap = new Dictionary<string, TypeDefinition>();
@@ -275,7 +278,7 @@ namespace BrokenEvent.ILStrip
         return;
 
       Log($"Type used: {typeDef}");
-      usedTypes.Add(typeDef);
+      typesToScan.Enqueue(typeDef);
       usedTypesCache.Add(typeDef);
       AddUsedBaml(typeDef);
     }
@@ -289,11 +292,12 @@ namespace BrokenEvent.ILStrip
 
     private void AddUsedBaml(ResourcePart resourcePart)
     {
-      if (usedBamls.Contains(resourcePart))
+      if (usedBamlsCache.Contains(resourcePart))
         return;
 
       Log($"BAML used: {resourcePart.Name}");
-      usedBamls.Add(resourcePart);
+      bamlsToScan.Enqueue(resourcePart);
+      usedBamlsCache.Add(resourcePart);
     }
 
     private static void AssertAction(bool result, string message)
@@ -330,7 +334,7 @@ namespace BrokenEvent.ILStrip
           throw new ArgumentException($"Unable to resolve class entry point: {entryPoint}");
 
         usedTypesCache.Add(type);
-        usedTypes.Add(type);
+        typesToScan.Enqueue(type);
         AddUsedBaml(type);
       }
 
@@ -339,7 +343,9 @@ namespace BrokenEvent.ILStrip
         ResourcePart resourcePart;
         if (wpfRootParts == null || !wpfRootParts.TryGetValue(entryPoint, out resourcePart))
           throw new ArgumentException($"Unable to reslove BAML entry point: {entryPoint}");
-        usedBamls.Add(resourcePart);
+
+        usedBamlsCache.Add(resourcePart);
+        bamlsToScan.Enqueue(resourcePart);
       }
     }
 
@@ -396,7 +402,7 @@ namespace BrokenEvent.ILStrip
             {
               if (pair.Value.Baml != null)
               {
-                if (!usedBamls.Contains(pair.Value))
+                if (!usedBamlsCache.Contains(pair.Value))
                 {
                   Log($"Cleaned up unused BAML: {pair.Key}");
                   continue;
@@ -569,22 +575,13 @@ namespace BrokenEvent.ILStrip
 
       Log("Scanning for used classes...");
 
-      int classIndex = 0;
-      int bamlIndex = 0;
-
-      while (classIndex < usedTypes.Count || bamlIndex < usedBamls.Count)
+      while (typesToScan.Count > 0 || bamlsToScan.Count > 0)
       {
-        if (classIndex < usedTypes.Count)
-        {
-          WalkClass(usedTypes[classIndex]);
-          classIndex++;
-        }
+        if (typesToScan.Count > 0)
+          WalkClass(typesToScan.Dequeue());
 
-        if (bamlIndex < usedBamls.Count)
-        {
-          WalkBaml(usedBamls[bamlIndex]);
-          bamlIndex++;
-        }
+        if (bamlsToScan.Count > 0)
+          WalkBaml(bamlsToScan.Dequeue());
       }
     }
 
