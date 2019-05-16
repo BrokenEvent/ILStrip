@@ -29,6 +29,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.TestExtension");
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.StaticClass");
+      asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.AnotherStaticClass");
       asserts.AssertNoWpfResource("ui/mainwindow.baml");
       asserts.AssertNoWpfResource("ui/unusedwindow.baml");
       asserts.AssertNoWpfResource("testdictionary.baml");
@@ -57,6 +58,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.TestExtension");
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.StaticClass");
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.AnotherStaticClass");
       asserts.AssertWpfResource("ui/mainwindow.baml");
       asserts.AssertNoWpfResource("ui/unusedwindow.baml");
       asserts.AssertNoWpfResource("testdictionary.baml");
@@ -85,6 +87,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.TestExtension");
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.StaticClass");
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.AnotherStaticClass");
       asserts.AssertWpfResource("ui/mainwindow.baml");
       asserts.AssertNoWpfResource("ui/unusedwindow.baml");
       asserts.AssertNoWpfResource("testdictionary.baml");
@@ -115,6 +118,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter", ClassModifier.Internal);
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.TestExtension", ClassModifier.Internal);
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.StaticClass", ClassModifier.Internal);
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.AnotherStaticClass", ClassModifier.Internal);
       asserts.AssertWpfResource("ui/mainwindow.baml");
       asserts.AssertWpfResource("ui/unusedwindow.baml");
       asserts.AssertWpfResource("testdictionary.baml");
@@ -144,6 +148,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.Converters.UnusedValueConverter");
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.TestExtension");
       asserts.AssertClass("ILStripWPFTestLib.ViewModel.StaticClass");
+      asserts.AssertClass("ILStripWPFTestLib.ViewModel.AnotherStaticClass");
       asserts.AssertWpfResource("ui/mainwindow.baml");
       asserts.AssertNoWpfResource("ui/unusedwindow.baml");
       asserts.AssertWpfResource("testdictionary.baml");

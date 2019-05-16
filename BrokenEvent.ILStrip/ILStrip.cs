@@ -202,6 +202,8 @@ namespace BrokenEvent.ILStrip
 
     private void WalkBaml(ResourcePart part)
     {
+      Dictionary<string, string> namespaces = new Dictionary<string, string>();
+
       foreach (BamlRecord record in part.Baml)
       {
         if (record.Type == BamlRecordType.TypeInfo)
@@ -210,6 +212,48 @@ namespace BrokenEvent.ILStrip
 
           TypeDefinition type;
           if (typesMap.TryGetValue(typeInfo.TypeFullName, out type))
+            AddUsedType(type);
+
+          continue;
+        }
+
+        if (record.Type == BamlRecordType.XmlnsProperty)
+        {
+          XmlnsPropertyRecord ns = (XmlnsPropertyRecord)record;
+          const string CLR_NAMESPACE = "clr-namespace:";
+          if (ns.XmlNamespace.StartsWith(CLR_NAMESPACE))
+            namespaces.Add(ns.Prefix, ns.XmlNamespace.Substring(CLR_NAMESPACE.Length));
+
+          continue;
+        }
+
+        if (record.Type == BamlRecordType.Text)
+        {
+          TextRecord textRecord = (TextRecord)record;
+
+          int index = textRecord.Value.IndexOf(':');
+          if (index == -1)
+            continue; // not ns reference
+
+          string name;
+          if (!namespaces.TryGetValue(textRecord.Value.Substring(0, index), out name))
+            continue;
+
+          name += "." + textRecord.Value.Substring(index + 1);
+
+          TypeDefinition type;
+
+          // type as string?
+          if (typesMap.TryGetValue(name, out type))
+          {
+            AddUsedType(type);
+            continue;
+          }
+
+          index = name.LastIndexOf(".", StringComparison.InvariantCulture);
+
+          // member?
+          if (typesMap.TryGetValue(name.Substring(0, index), out type))
             AddUsedType(type);
 
           continue;

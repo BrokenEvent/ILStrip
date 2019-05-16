@@ -21,8 +21,8 @@
     </Grid.RowDefinitions>
     <CheckBox IsChecked="{Binding IsChecked}" Grid.Row="0" Content="Checkbox"/>
     <TextBlock Text="{Binding IsChecked, Converter={StaticResource UsedValueConverter}}" Grid.Row="1"/>
-    
-    <TextBlock Text="{viewModel:Test}" Grid.Row="2"/>
+
+    <TextBlock Text="{viewModel:Test {x:Static viewModel:AnotherStaticClass.TestString}}" Grid.Row="2"/>
     
     <ui:UsedControl Grid.Row="3"/>
   </Grid>
