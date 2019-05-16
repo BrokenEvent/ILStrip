@@ -8,7 +8,7 @@
         xmlns:converters="clr-namespace:ILStripWPFTestLib.ViewModel.Converters"
         xmlns:ui="clr-namespace:ILStripWPFTestLib.UI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance Type=viewModel:UsedViewModel}">
+        Title="{x:Static viewModel:StaticClass.WindowTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance Type=viewModel:UsedViewModel}">
   <Window.Resources>
     <converters:UsedValueConverter x:Key="UsedValueConverter"/>
   </Window.Resources>

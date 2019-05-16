@@ -57,6 +57,7 @@
     <Compile Include="UI\UsedControl.xaml.cs">
       <DependentUpon>UsedControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\StaticClass.cs" />
     <Compile Include="ViewModel\TestExtension.cs" />
     <Compile Include="ViewModel\Converters\UnusedValueConverter.cs" />
     <Compile Include="ViewModel\Converters\UsedValueConverter.cs" />
