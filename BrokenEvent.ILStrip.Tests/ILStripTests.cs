@@ -14,6 +14,7 @@ namespace BrokenEvent.ILStrip.Tests
    * ClassWithGeneric - uses AttributedClass and EmptyClass
    * ClassWithNestedClass - uses ClassWithNestedClass/NestedClass
    * ClassWithNestedClass - no usages
+   * ClassWithEvents - uses EmptyClass
    * IInterface - no usages
    * CustomAttribute - no usages
    * TypeRefAttribute - no usages
@@ -42,6 +43,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertClass("ILStripTest.ClassWithEvents");
       asserts.AssertClass("ILStripTest.IInterface");
       asserts.AssertClass("ILStripTest.CustomAttribute");
       asserts.AssertClass("ILStripTest.XmlUsingClass");
@@ -68,6 +70,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -95,6 +98,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertClass("ILStripTest.IInterface");
       asserts.AssertClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -122,6 +126,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -149,6 +154,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -176,6 +182,35 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
+      asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertNoClass("ILStripTest.CustomAttribute");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
+    }
+
+    [Test]
+    public void Events()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.ClassWithEvents");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertNoClass("ILStripTest.UserClass");
+      asserts.AssertClass("ILStripTest.EmptyClass");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithTypeRefAttributeProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -203,6 +238,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -233,6 +269,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertClass("ILStripTest.XmlUsingClass");
@@ -262,6 +299,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -289,6 +327,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -316,6 +355,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -343,6 +383,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -374,6 +415,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertClass("ILStripTest.ClassWithNestedClass/NestedClass", ClassModifier.Public);
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertClass("ILStripTest.IInterface", ClassModifier.Internal);
       asserts.AssertClass("ILStripTest.CustomAttribute", ClassModifier.Internal);
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
@@ -404,6 +446,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");

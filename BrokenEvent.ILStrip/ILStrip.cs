@@ -82,7 +82,7 @@ namespace BrokenEvent.ILStrip
         Logger.LogMessage(msg);
     }
 
-    private void WalkCustomAttributes(Collection<CustomAttribute> customAttributes)
+    private void WalkCustomAttributes(IList<CustomAttribute> customAttributes)
     {
       int i = 0;
       while (i < customAttributes.Count)
@@ -157,12 +157,15 @@ namespace BrokenEvent.ILStrip
       }
 
       foreach (GenericParameter parameter in method.GenericParameters)
+      {
+        WalkCustomAttributes(parameter.CustomAttributes);
         AddUsedType(parameter.DeclaringType);
+      }
 
       foreach (ParameterDefinition parameter in method.Parameters)
       {
-        AddUsedType(parameter.ParameterType);
         WalkCustomAttributes(parameter.CustomAttributes);
+        AddUsedType(parameter.ParameterType);
       }
 
       AddUsedType(method.ReturnType);
