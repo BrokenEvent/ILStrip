@@ -4,6 +4,6 @@ namespace ILStripTest
 {
   class ExternalLibUser
   {
-    private UsedForm form = new UsedForm();
+    private UnusedForm form = new UnusedForm();
   }
 }

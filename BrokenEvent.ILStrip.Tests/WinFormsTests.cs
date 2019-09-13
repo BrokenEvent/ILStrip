@@ -105,5 +105,30 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertReference("System.Drawing");
       asserts.AssertReference("System.Windows.Forms");
     }
+
+    [Test]
+    public void ImportEntryPoints()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripWinFormsTestLib.exe"));
+      strip.ImportEntryPoints(TestHelper.TranslatePath("ILStripTestLib.dll"), new string[] { "ILStripTest.ExternalLibUser" });
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+      strip.CleanupUnusedResources();
+      strip.CleanupUnusedReferences();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertClass("ILStripWinFormsTestLib.UsedForm");
+      asserts.AssertClass("ILStripWinFormsTestLib.ControlOfUsedForm");
+      asserts.AssertClass("ILStripWinFormsTestLib.UnusedForm");
+      asserts.AssertClass("ILStripWinFormsTestLib.ControlOfUnusedForm");
+      asserts.AssertResource("ILStripWinFormsTestLib.UsedForm.resources");
+      asserts.AssertResource("ILStripWinFormsTestLib.UnusedForm.resources");
+      asserts.AssertResource("ILStripWinFormsTestLib.Resources.BrokenEventLogo.png");
+      asserts.AssertReference("mscorlib");
+      asserts.AssertReference("System.Drawing");
+      asserts.AssertReference("System.Windows.Forms");
+    }
   }
 }

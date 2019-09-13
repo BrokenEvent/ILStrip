@@ -565,6 +565,30 @@ namespace BrokenEvent.ILStrip
     }
 
     /// <summary>
+    /// Imports types of this assembly used in another assembly as entry points.
+    /// </summary>
+    /// <param name="assemblyPath">Absolue path to another assembly which uses current assembly.</param>
+    /// <param name="customEntryPoints">List of custom entry points for assembly at <paramref name="assemblyPath"/>.</param>
+    public void ImportEntryPoints(string assemblyPath, IEnumerable<string> customEntryPoints = null)
+    {
+      ILStrip stripper = new ILStrip(assemblyPath);
+      stripper.CollectUsageFromReferences = true;
+
+      if (customEntryPoints != null)
+        foreach (string entryPoint in customEntryPoints)
+          stripper.EntryPoints.Add(entryPoint);
+
+      stripper.ScanUsedClasses();
+
+      Log($"Importing entry points from: {assemblyPath}");
+      foreach (string entryPoint in stripper.GetUsagesFromReference(definition.Name.Name))
+      {
+        entryPoints.Add(entryPoint);
+        Log($"Imported: {entryPoint}");
+      }
+    }
+
+    /// <summary>
     /// Gets the list of exclusions to remain public if <see cref="MakeInternal"/> is used.
     /// </summary>
     /// <example>
@@ -660,7 +684,7 @@ namespace BrokenEvent.ILStrip
     /// </summary>
     /// <param name="assembly">Name of the assembly to search for. Assembly name example: <c>BrokenEvent.ILStrip</c></param>
     /// <returns>Type names enumeration in form of <c>MyNamespace.MyClass/MyNestedClass</c> or an empty enumeration.</returns>
-    /// <remarks>Will return data only if <seealso cref="CollectUsageFromReferences"/> is set to true and after scanning for used types.</remarks>
+    /// <remarks>Will return data only if <see cref="CollectUsageFromReferences"/> is set to true and after scanning for used types.</remarks>
     public IEnumerable<string> GetUsagesFromReference(string assembly)
     {
       if (usageFromReferences == null)
