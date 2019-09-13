@@ -2,13 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Resources;
 
 using Confuser.Renamer.BAML;
 
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
 
 namespace BrokenEvent.ILStrip
 {
@@ -34,7 +34,8 @@ namespace BrokenEvent.ILStrip
     private Dictionary<string, TypeDefinition> typesMap = new Dictionary<string, TypeDefinition>();
     private Dictionary<TypeDefinition, ResourcePart> bamlMap = new Dictionary<TypeDefinition, ResourcePart>();
 
-    private HashSet<ModuleDefinition> usedReferences = new HashSet<ModuleDefinition>();
+    private Dictionary<string, HashSet<string>> usageFromReferences;
+    private HashSet<AssemblyNameReference> usedReferences = new HashSet<AssemblyNameReference>();
     private HashSet<ModuleReference> usedUnmanagedReferences = new HashSet<ModuleReference>();
     private HashSet<string> makeInternalExclusions = new HashSet<string>();
     private HashSet<string> unusedResourceExclusions = new HashSet<string>();
@@ -310,19 +311,39 @@ namespace BrokenEvent.ILStrip
         foreach (TypeReference reference in genericType.GenericArguments)
           AddUsedType(reference);
 
+      foreach (GenericParameter parameter in typeRef.GenericParameters)
+        AddUsedType(parameter);
+
+      // check this before resolve
+      if (typeRef.Scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference && 
+        ((AssemblyNameReference)typeRef.Scope).FullName != definition.FullName)
+      {
+        AssemblyNameReference reference = (AssemblyNameReference)typeRef.Scope;
+        usedReferences.Add(reference);
+
+        // collect data
+        if (usageFromReferences != null)
+        {
+          HashSet<string> types;
+          if (!usageFromReferences.TryGetValue(reference.Name, out types))
+          {
+            types = new HashSet<string>();
+            usageFromReferences.Add(reference.Name, types);
+          }
+
+          types.Add(typeRef.FullName);
+        }
+        return;
+      }
+
+      // CLR?
+      if (typeRef.Scope.MetadataScopeType == MetadataScopeType.ModuleDefinition &&
+          typeRef.Scope != definition.MainModule)
+        return;
+
       TypeDefinition typeDef = typeRef.Resolve();
       if (typeDef == null)
         return;
-
-      foreach (GenericParameter parameter in typeDef.GenericParameters)
-        AddUsedType(parameter);
-
-      if (typeDef.Module != definition.MainModule)
-      {
-        if (!usedReferences.Contains(typeDef.Module))
-          usedReferences.Add(typeDef.Module);
-        return;
-      }
 
       WalkCustomAttributes(typeDef.CustomAttributes);
 
@@ -616,6 +637,40 @@ namespace BrokenEvent.ILStrip
     }
 
     /// <summary>
+    /// Gets the value indicating whether ILStrip will collect type usages from referenced assemblies.
+    /// </summary>
+    /// <seealso cref="GetUsagesFromReference"/>
+    public bool CollectUsageFromReferences
+    {
+      get { return usageFromReferences != null; }
+      set
+      {
+        if (CollectUsageFromReferences == value)
+          return;
+
+        if (value)
+          usageFromReferences = new Dictionary<string, HashSet<string>>();
+        else
+          usageFromReferences = null;
+      }
+    }
+
+    /// <summary>
+    /// Gets the enumeration of types used from given referenced assembly.
+    /// </summary>
+    /// <param name="assembly">Name of the assembly to search for. Assembly name example: <c>BrokenEvent.ILStrip</c></param>
+    /// <returns>Type names enumeration in form of <c>MyNamespace.MyClass/MyNestedClass</c> or an empty enumeration.</returns>
+    /// <remarks>Will return data only if <seealso cref="CollectUsageFromReferences"/> is set to true and after scanning for used types.</remarks>
+    public IEnumerable<string> GetUsagesFromReference(string assembly)
+    {
+      if (usageFromReferences == null)
+        return Enumerable.Empty<string>();
+
+      HashSet<string> result;
+      return usageFromReferences.TryGetValue(assembly, out result) ? result : Enumerable.Empty<string>();
+    }
+
+    /// <summary>
     /// Analyzes the classes and methods to build list of used classes.
     /// Beginning from the entry points.
     /// </summary>
@@ -778,8 +833,8 @@ namespace BrokenEvent.ILStrip
         bool shouldClean = true;
         AssemblyNameReference assemblyRef = definition.MainModule.AssemblyReferences[i];
 
-        foreach (ModuleDefinition reference in usedReferences)
-          if (reference.Assembly.FullName == assemblyRef.FullName)
+        foreach (AssemblyNameReference reference in usedReferences)
+          if (reference == assemblyRef)
           {
             shouldClean = false;
             break;

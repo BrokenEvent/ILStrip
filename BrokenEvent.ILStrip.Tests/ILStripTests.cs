@@ -19,6 +19,7 @@ namespace BrokenEvent.ILStrip.Tests
    * CustomAttribute - no usages
    * TypeRefAttribute - no usages
    * XmlUsingClass - no usages, but uses System.Xml reference
+   * ExternalLibUser - uses UsedForm from ILStripWinFormsTestLib assembly
    */
   [TestFixture]
   class ILStripTests
@@ -450,6 +451,18 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.IInterface");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
+    }
+
+    [Test]
+    public void CollectExternalUsages()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.CollectUsageFromReferences = true;
+      strip.EntryPoints.Add("ILStripTest.ExternalLibUser");
+
+      strip.ScanUsedClasses();
+
+      CollectionAssert.AreEqual(new string[] { "ILStripWinFormsTestLib.UsedForm" }, strip.GetUsagesFromReference("ILStripWinFormsTestLib"));
     }
   }
 }

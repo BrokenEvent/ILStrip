@@ -52,12 +52,20 @@
     <Compile Include="ClassWithNestedClass2.cs" />
     <Compile Include="ClassWithTypeRefAttributeProperty.cs" />
     <Compile Include="CustomAttribute.cs" />
+    <Compile Include="ExternalLibUser.cs" />
     <Compile Include="TypeRefAttribute.cs" />
     <Compile Include="IInterface.cs" />
     <Compile Include="EmptyClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserClass.cs" />
     <Compile Include="XmlUsingClass.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ILStripWinFormsTestLib\ILStripWinFormsTestLib.csproj">
+      <Project>{ef0544db-772d-44e8-923f-c2a34159d088}</Project>
+      <Name>ILStripWinFormsTestLib</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
