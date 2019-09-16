@@ -144,6 +144,8 @@ Uses [BamlParser](https://github.com/timotei/bamlparser) from Confuser.
 
 © 2017-2019 Broken Event. [brokenevent.com](https://brokenevent.com)
 
+[Official Project Page](https://brokenevent.com/projects/ilstrip)
+
 ### NuGet
 
 There is no nuget package for now, but we'll make it if the community require.
