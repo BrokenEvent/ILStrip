@@ -74,15 +74,17 @@ stripper.Save(outputPath);
 ### Commandline Tool
 
 In reasons of convenience there is a commandline tool, built from improvised means.
-This makes the ILStrip to work as standalone or as a part of any build script.
+This makes the ILStrip to work as standalone or as a part of any build script. 
 Usage:
 
-    Syntax:
-    BrokenEvent.ILStrip.CLI.exe input output [-s] [-e MyNamespace.MyClass] [-h] [-he MyNamespace.MyClass] [-u] [-re MyNamespace.MyResource] [-we resources/myresource.png]
+Syntax:
 
-    Arguments:
-    input           Input assembly filename to process.
-    output          Output assembly filename to save processed assembly.
+    BrokenEvent.ILStrip.CLI.exe input output [-s] [-e MyNamespace.MyClass] [-h] [-he MyNamespace.MyClass] [-u] [-re MyNamespace.MyResource] [-we resources/myresource.png] [-import myApp.exe]
+
+Arguments:
+
+    input           Input assembly filename to process. Required.
+    output          Output assembly filename to save processed assembly. Required.
     -s, -silent     Suppresses logging. Optional.
     -e              User defined entry point classes list to start analysis. Multiple values. Optional.
     -h, -hide       Hide public API with internal access modifier. Optional.
@@ -90,6 +92,7 @@ Usage:
     -u              Removes all unknown resources. Optional.
     -re             Resource exclusions for -u option. Multiple values. Optional.
     -we             WPF Resource exclusions for -u option. Multiple values. Optional.
+    -import         List of assemblies which use current to import used types as entry points. Optional.
 
 
 ### Analysis/How it works
