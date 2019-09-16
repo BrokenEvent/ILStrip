@@ -47,5 +47,8 @@ namespace BrokenEvent.ILStrip.CLI
 
     [Command("we", "WPF Resource exclusions for -u option. Multiple values.", "resources/myresource.png")]
     public List<string> WpfResourceExclusions { get; set; } = new List<string>();
+
+    [Command("import", "List of assemblies which use current to import used types as entry points.", "MyApp.exe")]
+    public List<string> ImportEntryPoints { get; set; } = new List<string>();
   }
 }

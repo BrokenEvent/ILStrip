@@ -571,20 +571,22 @@ namespace BrokenEvent.ILStrip
     /// <param name="customEntryPoints">List of custom entry points for assembly at <paramref name="assemblyPath"/>.</param>
     public void ImportEntryPoints(string assemblyPath, IEnumerable<string> customEntryPoints = null)
     {
-      ILStrip stripper = new ILStrip(assemblyPath);
-      stripper.CollectUsageFromReferences = true;
-
-      if (customEntryPoints != null)
-        foreach (string entryPoint in customEntryPoints)
-          stripper.EntryPoints.Add(entryPoint);
-
-      stripper.ScanUsedClasses();
-
-      Log($"Importing entry points from: {assemblyPath}");
-      foreach (string entryPoint in stripper.GetUsagesFromReference(definition.Name.Name))
+      using (ILStrip stripper = new ILStrip(assemblyPath))
       {
-        entryPoints.Add(entryPoint);
-        Log($"Imported: {entryPoint}");
+        stripper.CollectUsageFromReferences = true;
+
+        if (customEntryPoints != null)
+          foreach (string entryPoint in customEntryPoints)
+            stripper.EntryPoints.Add(entryPoint);
+
+        stripper.ScanUsedClasses();
+
+        Log($"Importing entry points from: {assemblyPath}");
+        foreach (string entryPoint in stripper.GetUsagesFromReference(definition.Name.Name))
+        {
+          entryPoints.Add(entryPoint);
+          Log($"Imported: {entryPoint}");
+        }
       }
     }
 
