@@ -4,9 +4,8 @@
     <id>Brokenevent.ILStrip.CLI</id>
     <title>BrokenEvent.ILStrip.CLI</title>
     <version>1.1.1</version>
-    <description>Commandline tool for C# assembly classes/references/resources cleaner.</description>
+    <description>Commandline tool and MSBuild task for C# assembly classes/references/resources cleaner.</description>
     <authors>BrokenEvent</authors>
-
     <owners>BrokenEvent</owners>
     <projectUrl>https://brokenevent.com/projects/ilstrip</projectUrl>
     <license type="expression">MIT</license>
@@ -14,11 +13,13 @@
     <copyright>©2016-2019 Broken Event. All rights reserved.</copyright>
     <language>en-US</language>
     <repository type="git" url="https://github.com/BrokenEvent/ILStrip.git"/>
-    <tags>ilmerge,ilrepack,assembly,cil,cleanup</tags>
+    <tags>ilmerge ilrepack assembly cil cleanup msbuild</tags>
   </metadata>
   <files>
     <file src="BrokenEvent.ILStrip.CLI\bin\Release\*.dll" target="tools" />
     <file src="BrokenEvent.ILStrip.CLI\bin\Release\*.exe" target="tools" />
     <file src="BrokenEvent.ILStrip.CLI\*.props*" target="build" />
+    <file src="BrokenEvent.ILStrip.CLI\*.targets*" target="build" />
+    <file src="BrokenEvent.ILStrip.CLI\readme.txt" target="." />
   </files>
 </package>

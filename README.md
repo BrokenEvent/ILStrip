@@ -88,6 +88,7 @@ Arguments:
     -s, -silent     Suppresses logging. Optional.
     -e              User defined entry point classes list to start analysis. Multiple values. Optional.
     -h, -hide       Hide public API with internal access modifier. Optional.
+    -b              User defined entry point BAMLs list to start analysis. Multiple values. Optional.
     -he             Exclusions for -h option. Multiple values. Optional.
     -u              Removes all unknown resources. Optional.
     -re             Resource exclusions for -u option. Multiple values. Optional.

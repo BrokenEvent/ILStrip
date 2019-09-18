@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="ILStrip" AfterTargets="PostBuildEvent;AfterBuild;AfterRebuild" BeforeTargets="Run" Condition=" '$(Configuration)'=='Release' ">
+    <PropertyGroup>
+      <ILStripSrc Condition=" '$(ILStripSrc)'=='' ">$(TargetFileName)</ILStripSrc>
+      <ILStripDst Condition=" '$(ILStripDst)'=='' ">$(TargetFileName)</ILStripDst>
+      <ILStripSrc>$(TargetDir)$(ILStripSrc)</ILStripSrc>
+      <ILStripDst>$(TargetDir)$(ILStripDst)</ILStripDst>
+      <TargetStrippedPath>$(ILStripSrc).stripped</TargetStrippedPath>
+      <Args Condition=" '$(ILStripInternalize)' == 'true' ">$(Args) -h</Args>
+      <Args>$(Args) @(ILStripEntryPoints -> '-e %(Identity)', ' ')</Args>
+      <Args>$(Args) @(ILStripEntryPointBAMLs -> '-b %(Identity)', ' ')</Args>
+      <Args Condition=" '$(ILStripInternalize)' == 'true' ">$(Args) @(ILStripHideExclusions -> '-he %(Identity)', ' ')</Args>
+      <Args>$(Args) @(ILStripImport -> '-import "%(Identity)"', ' ')</Args>
+    </PropertyGroup>
+
+    <Error Condition=" '$(ILStripPath)'=='' " Text="ILStripPath property not found."/>
+    <Error Condition="!Exists($(ILStripSrc))" Text="ILStripPath source file path does not exist ($(ILStripSrc))."/>
+
+    <Exec Command='$(ILStripPath) "$(ILStripSrc)" "$(TargetStrippedPath)"$(Args)' />
+    <Delete Files="$(ILStripSrc)"/>
+    <Message Importance="high" Text="$(TargetStrippedPath) -> $(ILStripDst)"/>
+    <Copy SourceFiles="$(TargetStrippedPath)" DestinationFiles="$(ILStripDst)"/>
+    <Delete Files="$(TargetStrippedPath)"/>
+  </Target>
+</Project>

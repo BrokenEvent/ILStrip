@@ -33,6 +33,9 @@ namespace BrokenEvent.ILStrip.CLI
     [Command("e", "User defined entry point classes list to start analysis. Multiple values.", "MyNamespace.MyClass")]
     public List<string> EntryPoints { get; set; } = new List<string>();
 
+    [Command("b", "User defined entry point BAMLs list to start analysis. Multiple values.", "ui/mainwindow.baml")]
+    public List<string> EntryPointBamls { get; set; } = new List<string>();
+
     [Command("h", "Hide public API with internal access modifier.", alias:"hide", isFlag:true)]
     public bool HideApi { get; set; }
 

@@ -31,6 +31,8 @@ namespace BrokenEvent.ILStrip.CLI
 
         foreach (string s in options.EntryPoints)
           ilStrip.EntryPoints.Add(s);
+        foreach (string s in options.EntryPointBamls)
+          ilStrip.EntryPointBamls.Add(s);
 
         foreach (string a in options.ImportEntryPoints)
           ilStrip.ImportEntryPoints(a);

@@ -1,0 +1,1 @@
+For detailed information about usage of MSBuild task, please see https://brokenevent.com/projects/ilstrip/usage.

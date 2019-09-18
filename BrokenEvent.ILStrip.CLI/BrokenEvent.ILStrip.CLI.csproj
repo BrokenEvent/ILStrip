@@ -46,6 +46,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="BrokenEvent.ILStrip.CLI.props">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="BrokenEvent.ILStrip.CLI.targets">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BrokenEvent.ILStrip\BrokenEvent.ILStrip.csproj">
