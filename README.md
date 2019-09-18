@@ -148,10 +148,11 @@ Uses [BamlParser](https://github.com/timotei/bamlparser) from Confuser.
 [Official Project Page](https://brokenevent.com/projects/ilstrip)
 
 ### NuGet
+[BrokenEvent.ILStrip](https://www.nuget.org/packages/Brokenevent.ILStrip/)
 
-There is no nuget package for now, but we'll make it if the community require.
+[BrokenEvent.ILStrip.CLI](https://www.nuget.org/packages/Brokenevent.ILStrip.CLI/)
 
 ## Download
-[BrokenEvent.ILStrip](https://ci.appveyor.com/api/projects/BrokenEvent/ilstrip/artifacts/BrokenEvent.ILStrip.zip)
+[BrokenEvent.ILStrip](https://brokenevent.com/uploads/ilstrip/ILStrip.zip)
 
-[BrokenEvent.ILStrip.CLI](https://ci.appveyor.com/api/projects/BrokenEvent/ilstrip/artifacts/BrokenEvent.ILStrip.CLI.zip)
+[BrokenEvent.ILStrip.CLI](https://brokenevent.com/uploads/ilstrip/ILStrip.CLI.zip)
