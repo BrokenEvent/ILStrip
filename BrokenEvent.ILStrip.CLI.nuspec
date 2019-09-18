@@ -3,7 +3,7 @@
   <metadata>
     <id>Brokenevent.ILStrip.CLI</id>
     <title>BrokenEvent.ILStrip.CLI</title>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <description>Commandline tool and MSBuild task for C# assembly classes/references/resources cleaner.</description>
     <authors>BrokenEvent</authors>
     <owners>BrokenEvent</owners>
