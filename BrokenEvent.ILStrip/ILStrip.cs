@@ -207,6 +207,7 @@ namespace BrokenEvent.ILStrip
         {
           foreach (GenericParameter genericParameter in typeRef.GenericParameters)
             AddUsedType(genericParameter);
+          AddUsedType(typeRef);
           AddUsedType(typeRef.DeclaringType);
           continue;
         }
