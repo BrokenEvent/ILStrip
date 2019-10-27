@@ -61,7 +61,18 @@ namespace BrokenEvent.ILStrip.CLI
         if (!options.Silent)
           Console.WriteLine("Writing: " + options.OutputFilename);
 
-        ilStrip.Save(options.OutputFilename);
+        try
+        {
+          ilStrip.Save(options.OutputFilename);
+        }
+        catch (Exception e)
+        {
+          Console.WriteLine($"[{e.GetType().Name}]: {e.Message}");
+#if DEBUG
+          Console.ReadKey();
+#endif
+          return 1;
+        }
       }
 
 #if DEBUG
