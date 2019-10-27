@@ -116,6 +116,13 @@ namespace BrokenEvent.ILStrip
         TypeReference baseRef = current.BaseType;
         if (baseRef == null)
           break;
+
+        if (!IsTypeRefInCurrentAssembly(baseRef))
+        {
+          AddUsedType(baseRef);
+          break;
+        }
+
         TypeDefinition baseDef = baseRef.Resolve();
         if (baseDef == null)
           break;
@@ -134,7 +141,7 @@ namespace BrokenEvent.ILStrip
       WalkCustomAttributes(type.CustomAttributes);
 
       foreach (TypeReference iface in type.Interfaces)
-        AddUsedType(iface.Resolve());
+        AddUsedType(iface);
 
       foreach (FieldDefinition field in type.Fields)
       {
@@ -301,6 +308,14 @@ namespace BrokenEvent.ILStrip
       }
     }
 
+    private bool IsTypeRefInCurrentAssembly(TypeReference typeRef)
+    {
+      if (typeRef.Scope.MetadataScopeType != MetadataScopeType.AssemblyNameReference)
+        return true;
+
+      return ((AssemblyNameReference)typeRef.Scope).FullName == definition.FullName;
+    }
+
     private void AddUsedType(TypeReference typeRef)
     {
       if (typeRef == null)
@@ -315,8 +330,7 @@ namespace BrokenEvent.ILStrip
         AddUsedType(parameter);
 
       // check this before resolve
-      if (typeRef.Scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference && 
-        ((AssemblyNameReference)typeRef.Scope).FullName != definition.FullName)
+      if (!IsTypeRefInCurrentAssembly(typeRef))
       {
         AssemblyNameReference reference = (AssemblyNameReference)typeRef.Scope;
         usedReferences.Add(reference);
