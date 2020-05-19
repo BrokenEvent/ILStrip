@@ -110,6 +110,8 @@ namespace BrokenEvent.ILStrip
 
     private void WalkClass(TypeDefinition type)
     {
+      AddUsedType(type.DeclaringType);
+
       TypeDefinition current = type;
       while (true)
       {
@@ -746,21 +748,14 @@ namespace BrokenEvent.ILStrip
         if (type.Name == "<Module>")
           continue; // hack
 
-        bool isNestedUsed = false;
         foreach (TypeDefinition nestedType in type.NestedTypes)
           if (usedTypesCache.Contains(nestedType))
-          {
-            isNestedUsed = true;
             break;
-          }
           else
           {
             Log("Type unused: " + nestedType);
             unusedTypes.Add(nestedType);
           }
-
-        if (isNestedUsed)
-          continue;
 
         if (usedTypesCache.Contains(type))
           continue;

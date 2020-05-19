@@ -301,7 +301,7 @@ namespace BrokenEvent.ILStrip.Tests
     }
 
     [Test]
-    public void CleanupUusedNestedClasses()
+    public void CleanupUnusedNestedClasses()
     {
       ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
       strip.EntryPoints.Add("ILStripTest.ClassWithNestedClass");
@@ -329,7 +329,7 @@ namespace BrokenEvent.ILStrip.Tests
     }
 
     [Test]
-    public void CleanupUnusedNestedClasses()
+    public void CleanupUnusedNestedClasses2()
     {
       ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
       strip.EntryPoints.Add("ILStripTest.ClassWithNestedClass2");
