@@ -76,6 +76,7 @@ namespace BrokenEvent.ILStrip.CLI
       }
 
 #if DEBUG
+      Console.WriteLine("Done.");
       Console.ReadKey();
 #endif
       return 0;

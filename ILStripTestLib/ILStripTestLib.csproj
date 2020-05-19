@@ -47,6 +47,7 @@
     <Compile Include="AttributedClass.cs" />
     <Compile Include="ClassWithAttributedField.cs" />
     <Compile Include="ClassWithAttributedProperty.cs" />
+    <Compile Include="ClassWithAttributedReturnMethod.cs" />
     <Compile Include="ClassWithEvents.cs" />
     <Compile Include="ClassWithGeneric.cs" />
     <Compile Include="ClassWithNestedClass.cs" />

@@ -178,7 +178,9 @@ namespace BrokenEvent.ILStrip
         AddUsedType(parameter.ParameterType);
       }
 
-      AddUsedType(method.ReturnType);
+      MethodReturnType returnType = method.MethodReturnType;
+      AddUsedType(returnType.ReturnType);
+      WalkCustomAttributes(returnType.CustomAttributes);
 
       if (!method.HasBody)
         return;

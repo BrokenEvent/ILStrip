@@ -20,6 +20,10 @@ namespace BrokenEvent.ILStrip.Tests
    * TypeRefAttribute - no usages
    * XmlUsingClass - no usages, but uses System.Xml reference
    * ExternalLibUser - uses UnusedForm from ILStripWinFormsTestLib assembly
+   * OneAttribute - uses TwoAttribute
+   * TwoAttribute - uses OneAttribute
+   * ClassWithAttributedReturnMethod - uses CustomAttribute
+   * SelfAttributingAttribute - uses self
    */
   [TestFixture]
   class ILStripTests
@@ -65,6 +69,7 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
       asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
       asserts.AssertNoClass("ILStripTest.ClassWithTypeRefAttributeProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedReturnMethod");
       asserts.AssertNoClass("ILStripTest.UserClass");
       asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
@@ -73,6 +78,9 @@ namespace BrokenEvent.ILStrip.Tests
       asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
       asserts.AssertNoClass("ILStripTest.ClassWithEvents");
       asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertNoClass("ILStripTest.AttributeOne");
+      asserts.AssertNoClass("ILStripTest.AttributeTwo");
+      asserts.AssertNoClass("ILStripTest.SelfAttributingAttribute");
       asserts.AssertNoClass("ILStripTest.CustomAttribute");
       asserts.AssertNoClass("ILStripTest.XmlUsingClass");
     }
@@ -193,7 +201,7 @@ namespace BrokenEvent.ILStrip.Tests
     public void AttributesCycle()
     {
       ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
-      strip.EntryPoints.Add("ILStripTest.AttributeOne");
+      strip.EntryPoints.Add("ILStripTest.OneAttribute");
 
       // this call will fail (and fail test runner) with StackOverflowException which we're unable to catch
       strip.ScanUsedClasses();
@@ -207,6 +215,38 @@ namespace BrokenEvent.ILStrip.Tests
 
       // this call will fail (and fail test runner) with StackOverflowException which we're unable to catch
       strip.ScanUsedClasses();
+    }
+
+    [Test]
+    public void AttributedReturn()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.ClassWithAttributedReturnMethod");
+
+      strip.ScanUsedClasses();
+      strip.ScanUnusedClasses();
+      strip.CleanupUnusedClasses();
+
+      AssemblyAsserts asserts = new AssemblyAsserts(strip);
+      asserts.AssertNoClass("ILStripTest.EmptyClass");
+      asserts.AssertNoClass("ILStripTest.AttributedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedField");
+      asserts.AssertNoClass("ILStripTest.ClassWithAttributedProperty");
+      asserts.AssertNoClass("ILStripTest.ClassWithTypeRefAttributeProperty");
+      asserts.AssertClass("ILStripTest.ClassWithAttributedReturnMethod");
+      asserts.AssertNoClass("ILStripTest.UserClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithGeneric`1");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2");
+      asserts.AssertNoClass("ILStripTest.ClassWithNestedClass2/NestedClass");
+      asserts.AssertNoClass("ILStripTest.ClassWithEvents");
+      asserts.AssertNoClass("ILStripTest.IInterface");
+      asserts.AssertNoClass("ILStripTest.AttributeOne");
+      asserts.AssertNoClass("ILStripTest.AttributeTwo");
+      asserts.AssertNoClass("ILStripTest.SelfAttributingAttribute");
+      asserts.AssertClass("ILStripTest.CustomAttribute");
+      asserts.AssertNoClass("ILStripTest.XmlUsingClass");
     }
 
     [Test]

@@ -2,14 +2,14 @@
 
 namespace ILStripTest
 {
-  [AttributeTwo]
-  class AttributeOne: Attribute
+  [Two]
+  class OneAttribute: Attribute
   {
     
   }
 
-  [AttributeOne]
-  class AttributeTwo: Attribute
+  [One]
+  class TwoAttribute: Attribute
   {
     
   }
