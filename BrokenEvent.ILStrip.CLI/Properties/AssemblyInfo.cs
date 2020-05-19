@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("BrokenEvent.ILStrip.CLI")]
-[assembly: AssemblyCopyright("©2016-2019 Broken Event. All rights reserved.")]
+[assembly: AssemblyCopyright("©2016-2020 Broken Event. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
