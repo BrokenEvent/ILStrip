@@ -11,5 +11,10 @@
     {
       new AttributedClass();
     }
+
+    private void RecursiveMethod()
+    {
+      RecursiveMethod();
+    }
   }
 }

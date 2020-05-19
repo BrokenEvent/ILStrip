@@ -190,6 +190,26 @@ namespace BrokenEvent.ILStrip.Tests
     }
 
     [Test]
+    public void AttributesCycle()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.AttributeOne");
+
+      // this call will fail (and fail test runner) with StackOverflowException which we're unable to catch
+      strip.ScanUsedClasses();
+    }
+
+    [Test]
+    public void SelfAttributing()
+    {
+      ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));
+      strip.EntryPoints.Add("ILStripTest.SelfAttributingAttribute");
+
+      // this call will fail (and fail test runner) with StackOverflowException which we're unable to catch
+      strip.ScanUsedClasses();
+    }
+
+    [Test]
     public void Events()
     {
       ILStrip strip = new ILStrip(TestHelper.TranslatePath("ILStripTestLib.dll"));

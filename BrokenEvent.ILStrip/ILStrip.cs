@@ -360,8 +360,6 @@ namespace BrokenEvent.ILStrip
       if (typeDef == null)
         return;
 
-      WalkCustomAttributes(typeDef.CustomAttributes);
-
       if (usedTypesCache.Contains(typeDef))
         return;
 
@@ -369,6 +367,8 @@ namespace BrokenEvent.ILStrip
       typesToScan.Enqueue(typeDef);
       usedTypesCache.Add(typeDef);
       AddUsedBaml(typeDef);
+
+      WalkCustomAttributes(typeDef.CustomAttributes);
     }
 
     private void AddUsedBaml(TypeDefinition typeDef)

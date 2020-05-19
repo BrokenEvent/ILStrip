@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttributesCycle.cs" />
     <Compile Include="AttributedClass.cs" />
     <Compile Include="ClassWithAttributedField.cs" />
     <Compile Include="ClassWithAttributedProperty.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="ClassWithTypeRefAttributeProperty.cs" />
     <Compile Include="CustomAttribute.cs" />
     <Compile Include="ExternalLibUser.cs" />
+    <Compile Include="SelfAttributingAttribute.cs" />
     <Compile Include="TypeRefAttribute.cs" />
     <Compile Include="IInterface.cs" />
     <Compile Include="EmptyClass.cs" />
