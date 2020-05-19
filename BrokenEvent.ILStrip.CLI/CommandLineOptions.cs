@@ -6,7 +6,7 @@ using BrokenEvent.Shared.Algorithms;
 
 namespace BrokenEvent.ILStrip.CLI
 {
-  [CommandModel("BrokenEvent.ILStrip.CLI, (c)2017-2019 Broken Event")]
+  [CommandModel("BrokenEvent.ILStrip.CLI, (c)2017-2020 Broken Event")]
   internal class CommandLineOptions
   {
     private string inputFilename;
