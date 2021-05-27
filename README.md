@@ -1,6 +1,8 @@
 [![Build Status](https://img.shields.io/appveyor/ci/BrokenEvent/ILStrip/master.svg?style=flat-square)](https://ci.appveyor.com/project/BrokenEvent/ilstrip)
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://raw.githubusercontent.com/BrokenEvent/ILStrip/master/LICENSE)
 [![Github Releases](https://img.shields.io/github/downloads/BrokenEvent/ILStrip/total.svg?style=flat-square)](https://github.com/BrokenEvent/ILStrip/releases)
+[![NuGet](https://img.shields.io/nuget/v/BrokenEvent.ILStrip.svg?style=flat-square?color=informational&label=NuGet)](https://www.nuget.org/packages/Brokenevent.ILStrip/)
+[![NuGet CLI](https://img.shields.io/nuget/v/BrokenEvent.ILStrip.CLI.svg?style=flat-square?color=informational&label=NuGet+CLI)](https://www.nuget.org/packages/Brokenevent.ILStrip.CLI/)
 
 # BrokenEvent.ILStrip
 
